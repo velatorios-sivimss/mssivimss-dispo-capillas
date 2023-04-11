@@ -27,7 +27,13 @@ public class DispoCapillasController {
 	@PostMapping("/registro-mensual")
 	public Response<?> buscarRegistros(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
 	
-		return dispoCapillasService.buscarRegistrosPorMes(request,authentication);
+		return dispoCapillasService.buscarRegistrosPorMes(request,authentication); 
+	}
+	
+	@PostMapping("/disponibles")
+	public Response<?> buscarCapillas(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+	
+		return dispoCapillasService.buscarCapillasDisponibles(request,authentication);
       
 	}
 

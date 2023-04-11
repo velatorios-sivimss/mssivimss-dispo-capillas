@@ -12,4 +12,6 @@ public interface DispoCapillasService {
 
 	Response<?> buscarRegistrosPorMes(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 
+	Response<?> buscarCapillasDisponibles(DatosRequest request, Authentication authentication) throws IOException;
+
 }

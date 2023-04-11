@@ -2,6 +2,7 @@ package com.imss.sivimss.arquetipo.beans;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.imss.sivimss.arquetipo.exception.BadRequestException;
 import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
@@ -53,12 +54,22 @@ public class DispoCapillas {
 						+ "DATE_FORMAT(SD.FEC_SALIDA, \"%d-%m-%Y\") AS fechaSalida, "
 						+ "TIME_FORMAT(SD.TIM_HORA_SALIDA, \"%H:%i\") AS hrSalida, "
 						+ "SC.NOM_CAPILLA, SV.NOM_VELATORIO"
-						+ " FROM svc_capilla SC "
-						+ " JOIN svt_disponibilidad_capillas SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
-						+ " JOIN svc_velatorio SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
+						+ " FROM SVC_CAPILLA SC "
+						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
+						+ " JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ " WHERE SC.CVE_ESTATUS=1 AND SD.FEC_ENTRADA LIKE '%"+ fechaEntrada +"%' "
 						+ " AND SV.NOM_VELATORIO = '"+buscar.getVelatorio()+"'";
 				log.info(query);
+				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				return request;
+			}
+
+			public DatosRequest capillasDisponibles(DatosRequest request, BuscarDispoCapillasRequest buscar) {
+				String query = "SELECT SC.ID_CAPILLA AS id, SC.NOM_CAPILLA AS nomCapilla "
+						+ "FROM SVC_CAPILLA SC "
+						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
+						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=1 AND SV.NOM_VELATORIO='"+ buscar.getVelatorio() +"'";
+					log.info(query);
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
 			}
