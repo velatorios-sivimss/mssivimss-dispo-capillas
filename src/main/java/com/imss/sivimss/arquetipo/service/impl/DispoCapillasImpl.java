@@ -31,7 +31,13 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	
 
 	@Value("${endpoints.dominio-consulta}")
-	private String urlDominioConsulta;
+	private String urlConsulta;
+	
+	@Value("${endpoints.dominio-consulta-paginado}")
+	private String urlPaginado;
+	
+	@Value("${endpoints.dominio-crear}")
+	private String urlCrear;
 
 	@Autowired
 	private ProviderServiceRestTemplate providerRestTemplate;
@@ -40,10 +46,9 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	
 	DispoCapillas dispoCapillas = new DispoCapillas();
 	
-	//MensajeResponseUtil mensaje;
-	
 	private static final String SIN_INFORMACION="87";//No contamos con capillas disponibles por el momento. Intenta mas tarde. 
-
+	private static final String NO_EXISTE_ODS="85";//El numero de folio no existe. Verifica tu información.
+	
 	@Override
 	public Response<?> buscarRegistrosPorMes(DatosRequest request, Authentication authentication)
 			throws IOException, ParseException {
@@ -53,7 +58,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
         DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
         String fecha=anioMes.format(dateF);
         dispoCapillas.setFechaEntrada(fecha);
-		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscar).getDatos(), urlDominioConsulta + "/paginado",
+		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscar).getDatos(), urlConsulta + "/paginado",
 				authentication);
 	}
 
@@ -63,9 +68,21 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		String datosJson = String.valueOf(request.getDatos().get("datos"));
 		BuscarDispoCapillasRequest buscar = gson.fromJson(datosJson, BuscarDispoCapillasRequest .class);
 		
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request, buscar).getDatos(), urlDominioConsulta + "/consulta",
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request, buscar).getDatos(), urlConsulta + "/consulta",
 				authentication), SIN_INFORMACION);
-		
 	}
 
+	@Override
+	public Response<?> buscarOds(DatosRequest request, Authentication authentication) throws IOException {
+			return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.buscarOrdenServicio(request).getDatos(), urlConsulta + "/consulta",
+					authentication), NO_EXISTE_ODS);
+	}
+
+	@Override
+	public Response<?> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException {
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasOcupadas(request).getDatos(), urlPaginado + "/paginado",
+				authentication), "Sin información");
+	}
+
+	
 }

@@ -31,9 +31,21 @@ public class DispoCapillasController {
 	}
 	
 	@PostMapping("/disponibles")
-	public Response<?> buscarCapillas(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+	public Response<?> buscarCapillas(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
 	
 		return dispoCapillasService.buscarCapillasDisponibles(request,authentication);
+	}
+	
+	@PostMapping("/buscar-ods")
+	public Response<?> buscarOrdenServicio(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
+	
+		return dispoCapillasService.buscarOds(request,authentication);
+	}
+	
+	@PostMapping("/ocupadas")
+	public Response<?> buscarCapillasOcupadas(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
+	
+		return dispoCapillasService.buscarCapillasOcupadas(request,authentication);
       
 	}
 

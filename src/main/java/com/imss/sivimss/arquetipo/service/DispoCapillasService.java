@@ -14,4 +14,8 @@ public interface DispoCapillasService {
 
 	Response<?> buscarCapillasDisponibles(DatosRequest request, Authentication authentication) throws IOException;
 
+	Response<?> buscarOds(DatosRequest request, Authentication authentication)  throws IOException;
+
+	Response<?> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException;
+
 }

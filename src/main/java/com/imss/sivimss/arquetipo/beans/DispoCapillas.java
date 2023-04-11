@@ -2,6 +2,8 @@ package com.imss.sivimss.arquetipo.beans;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.springframework.http.HttpStatus;
+
 import com.imss.sivimss.arquetipo.exception.BadRequestException;
 import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
@@ -65,12 +67,50 @@ public class DispoCapillas {
 			}
 
 			public DatosRequest capillasDisponibles(DatosRequest request, BuscarDispoCapillasRequest buscar) {
-				String query = "SELECT SC.ID_CAPILLA AS id, SC.NOM_CAPILLA AS nomCapilla "
+				String query = "SELECT SC.ID_CAPILLA AS id, SC.NOM_CAPILLA AS nomCapilla,"
+						+ " SC.IND_DISPONIBILIDAD AS disponibilidad "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
-						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=1 AND SV.NOM_VELATORIO='"+ buscar.getVelatorio() +"'";
+						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=1 AND SV.NOM_VELATORIO='"+ buscar.getVelatorio() +"'"
+								+ " GROUP BY SC.ID_CAPILLA";
 					log.info(query);
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
 			}
+
+			public DatosRequest buscarOrdenServicio(DatosRequest request) {
+				String palabra = request.getDatos().get("palabra").toString();
+				String query = "SELECT CONCAT (PS.NOM_PERSONA, ' ', PS.NOM_PRIMER_APELLIDO, ' ', PS.NOM_SEGUNDO_APELLIDO) AS nombreContratante, "
+						+ "OS.ID_ORDEN_SERVICIO AS id, "
+						+ "(SELECT CONCAT (SPN.NOM_PERSONA, ' ', SPN.NOM_PRIMER_APELLIDO, ' ', SPN.NOM_SEGUNDO_APELLIDO)  "
+						+ " FROM SVC_FINADO SF "
+						+ "JOIN SVC_PERSONA SPN ON SF.ID_PERSONA = SPN.ID_PERSONA) AS finado "
+						+ "FROM SVC_ORDEN_SERVICIO OS "
+						+ " JOIN SVC_CONTRATANTE SC ON OS.ID_CONTRATANTE = SC.ID_CONTRATANTE "
+						+ "JOIN SVC_PERSONA PS ON PS.ID_PERSONA = SC.ID_PERSONA "
+						+ " WHERE OS.CVE_ESTATUS = 2 OR OS.CVE_ESTATUS = 3 AND OS.CVE_FOLIO ="+ Integer.parseInt(palabra) +"";
+					log.info(query);
+				request.getDatos().remove("palabra");
+				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				return request;
+			}
+
+			public DatosRequest capillasOcupadas(DatosRequest request) {
+				String palabra = request.getDatos().get("palabra").toString();
+				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla, "
+						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada, "
+						+ " TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS hrEntrada,"
+						+ " SC.IND_DISPONIBILIDAD AS disponibilidad "
+						+ "FROM SVC_CAPILLA SC "
+						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
+						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
+						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 AND SV.NOM_VELATORIO='"+ palabra +"'"
+								+ " GROUP BY SC.ID_CAPILLA";
+					log.info(query);
+				request.getDatos().remove("palabra");
+				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				return request;
+			}
+
+			
 }
