@@ -45,8 +45,13 @@ public class DispoCapillasController {
 	@PostMapping("/ocupadas")
 	public Response<?> buscarCapillasOcupadas(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
 	
-		return dispoCapillasService.buscarCapillasOcupadas(request,authentication);
-      
+		return dispoCapillasService.buscarCapillasOcupadas(request,authentication); 
+	}
+	
+	@PostMapping("/registrar-entrada")
+	public Response<?> registrarEntradaCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+	
+		return dispoCapillasService.registrarEntrada(request,authentication); 
 	}
 
 }

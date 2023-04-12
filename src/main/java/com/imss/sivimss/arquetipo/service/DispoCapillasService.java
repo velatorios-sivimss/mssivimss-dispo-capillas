@@ -18,4 +18,6 @@ public interface DispoCapillasService {
 
 	Response<?> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException;
 
+	Response<?> registrarEntrada(DatosRequest request, Authentication authentication) throws IOException, ParseException;
+
 }

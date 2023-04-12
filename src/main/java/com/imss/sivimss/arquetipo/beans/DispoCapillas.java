@@ -1,5 +1,8 @@
 package com.imss.sivimss.arquetipo.beans;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.http.HttpStatus;
@@ -9,6 +12,7 @@ import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
 import com.imss.sivimss.arquetipo.util.DatosRequest;
+import com.imss.sivimss.arquetipo.util.QueryHelper;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -110,6 +114,51 @@ public class DispoCapillas {
 				request.getDatos().remove("palabra");
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
+			}
+
+			public DatosRequest insertar() {
+				DatosRequest request = new DatosRequest();
+				Map<String, Object> parametro = new HashMap<>();
+				final QueryHelper q = new QueryHelper("INSERT INTO SVT_DISPONIBILIDAD_CAPILLAS ");
+				q.agregarParametroValues(" ID_CAPILLA", "'" + this.idCapilla + "'");
+				q.agregarParametroValues("FEC_ENTRADA", "'" + this.fechaEntrada + "'");
+				q.agregarParametroValues("TIM_HORA_ENTRADA", "'" + this.horaEntrada + "'");
+				q.agregarParametroValues("ID_ORDEN_SERVICIO", "" + this.idOrdenServicio + "");
+				q.agregarParametroValues("CVE_ESTATUS", "1");
+				q.agregarParametroValues("ID_USUARIO_ALTA", "" + idUsuarioAlta +"");
+				q.agregarParametroValues("FEC_ALTA", " CURRENT_TIMESTAMP() ");
+				String query = q.obtenerQueryInsertar() + " $$ " + cambiarEstatusCapilla(this.idCapilla) +" $$ " + cambiarEstatusOds(this.idOrdenServicio);
+				log.info("estoy en " +query);
+				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				 parametro.put("separador","$$");
+				request.setDatos(parametro);
+				return request;
+			}
+
+			private String cambiarEstatusOds(Integer idOds) {
+				DatosRequest request = new DatosRequest();
+		        Map<String, Object> parametro = new HashMap<>();
+		        final QueryHelper q = new QueryHelper("UPDATE SVC_ORDEN_SERVICIO");
+		        q.agregarParametroValues("CVE_ESTATUS", "3");
+		        q.addWhere("ID_ORDEN_SERVICIO =" +idOds);
+		        String query = q.obtenerQueryActualizar();
+		        String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+		        parametro.put(AppConstantes.QUERY, encoded);
+		        request.setDatos(parametro);
+		        return query;
+			}
+
+			private String cambiarEstatusCapilla(Integer idCapilla) {
+				 DatosRequest request = new DatosRequest();
+			        Map<String, Object> parametro = new HashMap<>();
+			        final QueryHelper q = new QueryHelper("UPDATE SVC_CAPILLA");
+			        q.agregarParametroValues("IND_DISPONIBILIDAD", "0");
+			        q.addWhere("ID_CAPILLA =" +idCapilla);
+			        String query = q.obtenerQueryActualizar();
+			        String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+			        parametro.put(AppConstantes.QUERY, encoded);
+			        request.setDatos(parametro);
+			        return query;
 			}
 
 			
