@@ -52,7 +52,7 @@ public class DispoCapillas {
 			this.cveEstatus = dispoCapillas.getCveEstatus();
 	 }
 
-			public DatosRequest registrosPorMes(DatosRequest request, BuscarDispoCapillasRequest buscar) {
+			public DatosRequest registrosPorMes(DatosRequest request, String velatorio, String fecha) {
 				String query = "SELECT "
 						+ "SC.ID_CAPILLA AS idCapilla,"
 						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada,"
@@ -63,8 +63,8 @@ public class DispoCapillas {
 						+ " FROM SVC_CAPILLA SC "
 						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
 						+ " JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
-						+ " WHERE SC.CVE_ESTATUS=1 AND SD.FEC_ENTRADA LIKE '%"+ fechaEntrada +"%' "
-						+ " AND SV.NOM_VELATORIO = '"+buscar.getVelatorio()+"'";
+						+ " WHERE SC.CVE_ESTATUS=1 AND SD.FEC_ENTRADA LIKE '%"+ fecha +"%' "
+						+ " AND SV.NOM_VELATORIO = '"+velatorio+"'";
 				log.info(query);
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
@@ -102,21 +102,21 @@ public class DispoCapillas {
 			public DatosRequest capillasOcupadas(DatosRequest request) {
 				String palabra = request.getDatos().get("palabra").toString();
 				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla, "
-						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada, "
+						+ "MAX(DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\")) AS fechaEntrada, "
 						+ " TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS hrEntrada,"
-						+ " SC.IND_DISPONIBILIDAD AS disponibilidad "
+						+ " SC.IND_DISPONIBILIDAD AS disponibilidad, MAX(SD.ID_DISPONIBILIDAD) AS idDisponibilidad "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
 						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 AND SV.NOM_VELATORIO='"+ palabra +"'"
-								+ " GROUP BY SC.ID_CAPILLA";
+								+ " GROUP BY SC.ID_CAPILLA ";
 					log.info(query);
 				request.getDatos().remove("palabra");
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
 			}
 
-			public DatosRequest insertar() {
+			public DatosRequest insertarEntrada() {
 				DatosRequest request = new DatosRequest();
 				Map<String, Object> parametro = new HashMap<>();
 				final QueryHelper q = new QueryHelper("INSERT INTO SVT_DISPONIBILIDAD_CAPILLAS ");
@@ -159,6 +159,70 @@ public class DispoCapillas {
 			        parametro.put(AppConstantes.QUERY, encoded);
 			        request.setDatos(parametro);
 			        return query;
+			}
+
+			public DatosRequest insertarSalida() {
+				DatosRequest request = new DatosRequest();
+				Map<String, Object> parametro = new HashMap<>();
+				final QueryHelper q = new QueryHelper("UPDATE SVT_DISPONIBILIDAD_CAPILLAS ");
+				q.agregarParametroValues("FEC_SALIDA", "'" + this.fechaSalida + "'");
+				q.agregarParametroValues("TIM_HORA_SALIDA", "'" + this.horaSalida + "'");
+				q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
+				q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
+				  q.addWhere("ID_DISPONIBILIDAD =" +this.idDisponibilidad);
+				String query = q.obtenerQueryActualizar()  + " $$ " + cambiarCapillaDisponible(this.idCapilla);
+				log.info("estoy en " +query);
+				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				 parametro.put("separador","$$");
+				request.setDatos(parametro);
+
+				return request;
+			}
+
+			private String cambiarCapillaDisponible(Integer idCapilla) {
+				DatosRequest request = new DatosRequest();
+				Map<String, Object> parametro = new HashMap<>();
+				final QueryHelper q = new QueryHelper("UPDATE SVC_CAPILLA ");
+				q.agregarParametroValues("IND_DISPONIBILIDAD", "1");
+				q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
+				q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
+				  q.addWhere("ID_CAPILLA =" +idCapilla);
+				String query = q.obtenerQueryActualizar();
+				log.info("estoy en " +query);
+				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				request.setDatos(parametro);
+
+				return query;
+			}
+
+			public DatosRequest detalleRegistro(DatosRequest request, String capilla) {
+				String query = "SELECT "
+						+ " CONCAT (PS.NOM_PERSONA, ' ', PS.NOM_PRIMER_APELLIDO, ' ', PS.NOM_SEGUNDO_APELLIDO) AS nombreContratante, "
+						+ " OS.ID_ORDEN_SERVICIO AS idOds, OS.CVE_FOLIO AS folioOds, "
+						+ " (SELECT CONCAT (SPN.NOM_PERSONA, ' ', SPN.NOM_PRIMER_APELLIDO, ' ', SPN.NOM_SEGUNDO_APELLIDO) "
+						+ " FROM SVC_FINADO SF "
+						+ "JOIN SVC_PERSONA SPN ON SF.ID_PERSONA = SPN.ID_PERSONA) AS finado, "
+						+ " CAP.ID_CAPILLA AS idCapilla, "
+						+ "TIME_FORMAT(SDC.TIM_HORA_ENTRADA, \"%H:%i\") AS registroEntrada, "
+						+ "TIME_FORMAT(SDC.TIM_HORA_SALIDA, \"%H:%i\") AS registroSalida "
+						+ "FROM SVC_ORDEN_SERVICIO OS "
+						+ "JOIN SVC_CONTRATANTE SC ON OS.ID_CONTRATANTE = SC.ID_CONTRATANTE  "
+						+ " JOIN SVC_PERSONA PS ON PS.ID_PERSONA = SC.ID_PERSONA  "
+						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SDC ON OS.ID_ORDEN_SERVICIO = SDC.ID_ORDEN_SERVICIO "
+						+ " JOIN SVC_CAPILLA CAP ON CAP.ID_CAPILLA = SDC.ID_CAPILLA "
+						+ " WHERE SDC.FEC_ENTRADA = '"+ fechaEntrada +"' "
+						+ " AND CAP.NOM_CAPILLA = '"+capilla+"'";
+				log.info(query);
+				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				return request;
+			}
+
+			public DatosRequest  catalogoVelatorio(DatosRequest request) {
+				String query = "SELECT ID_VELATORIO AS id, NOM_VELATORIO AS velatorio "
+						+ " FROM svc_velatorio";
+				log.info(query);
+				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				return request;
 			}
 
 			

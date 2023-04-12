@@ -24,6 +24,12 @@ public class DispoCapillasController {
 	@Autowired
 	DispoCapillasService dispoCapillasService;
 	
+	@PostMapping("/catalogo-velatorios")
+	public Response<?> buscarVelatorios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return dispoCapillasService.buscarVelatorios(request,authentication); 
+	}
+	
 	@PostMapping("/registro-mensual")
 	public Response<?> buscarRegistros(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
 	
@@ -53,5 +59,17 @@ public class DispoCapillasController {
 	
 		return dispoCapillasService.registrarEntrada(request,authentication); 
 	}
+	
+	@PostMapping("/registrar-salida")
+	public Response<?> registrarSalidaCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+	
+		return dispoCapillasService.registrarSalida(request,authentication);
+	}
 
+	@PostMapping("/detalle-por-dia")
+	public Response<?> detalleRegistroCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+	
+		return dispoCapillasService.detallePorDia(request,authentication);
+      
+	}
 }

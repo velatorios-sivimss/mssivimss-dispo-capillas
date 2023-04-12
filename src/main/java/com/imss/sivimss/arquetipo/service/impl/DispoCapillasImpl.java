@@ -18,6 +18,7 @@ import com.imss.sivimss.arquetipo.beans.DispoCapillas;
 import com.imss.sivimss.arquetipo.exception.BadRequestException;
 import com.imss.sivimss.arquetipo.model.UsuarioDto;
 import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
+import com.imss.sivimss.arquetipo.model.request.BuscarRegistroMensual;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.service.DispoCapillasService;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
@@ -52,16 +53,18 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	private static final String SIN_INFORMACION="87";//No contamos con capillas disponibles por el momento. Intenta mas tarde. 
 	private static final String NO_EXISTE_ODS="85";//El numero de folio no existe. Verifica tu información.
 	private static final String AGREGADO_CORRECTAMENTE="84";//Has registrado la entrada del servicio correctamente
+	private static final String SALIDA_CORRECTA="83";//Has registrado la salida del servicio correctamente
 	@Override
 	public Response<?> buscarRegistrosPorMes(DatosRequest request, Authentication authentication)
 			throws IOException, ParseException {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
-		BuscarDispoCapillasRequest buscar = gson.fromJson(datosJson, BuscarDispoCapillasRequest .class);
-		Date dateF = new SimpleDateFormat("dd-MM-yyyy").parse(buscar.getFecha());
+		BuscarRegistroMensual buscarMensual = gson.fromJson(datosJson, BuscarRegistroMensual .class);
+		String fechaCompleta = buscarMensual.getMes() +"-" +buscarMensual.getAnio();
+		Date dateF = new SimpleDateFormat("MMMM-yyyy").parse(fechaCompleta);
         DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
         String fecha=anioMes.format(dateF);
-        dispoCapillas.setFechaEntrada(fecha);
-		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscar).getDatos(), urlPaginado,
+        log.info("estoy en: " +fecha);
+		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getVelatorio(), fecha).getDatos(), urlPaginado,
 				authentication);
 	}
 
@@ -96,9 +99,33 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		dispoCapillas.setIdUsuarioAlta(usuarioDto.getIdUsuario());
 		dispoCapillas.setFechaEntrada(formatFechas(dispoCapillasR.getFechaEntrada()));
 		dispoCapillas.setHoraEntrada(formatHoras(dispoCapillasR.getHoraEntrada()));
-		return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertar().getDatos(), urlInsertarMultiple,
+		return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarEntrada().getDatos(), urlInsertarMultiple,
 						authentication), AGREGADO_CORRECTAMENTE);
 	}
+	
+	@Override
+	public Response<?> registrarSalida(DatosRequest request, Authentication authentication)
+			throws IOException, ParseException {
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		DispoCapillasRequest dispoCapillasR = gson.fromJson(datosJson, DispoCapillasRequest.class);	
+		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		dispoCapillas = new DispoCapillas(dispoCapillasR);
+		dispoCapillas.setIdUsuarioModifica(usuarioDto.getIdUsuario());
+		dispoCapillas.setFechaSalida(formatFechas(dispoCapillasR.getFechaSalida()));
+		dispoCapillas.setHoraSalida(formatHoras(dispoCapillasR.getHoraSalida()));
+		return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarSalida().getDatos(), urlInsertarMultiple,
+						authentication), SALIDA_CORRECTA);
+	}
+	
+	@Override
+	public Response<?> detallePorDia(DatosRequest request, Authentication authentication)
+			throws IOException, ParseException {
+		String datosJson = String.valueOf(request.getDatos().get("datos"));
+		BuscarDispoCapillasRequest buscar = gson.fromJson(datosJson, BuscarDispoCapillasRequest .class);
+        dispoCapillas.setFechaEntrada(formatFechas(buscar.getFecha()));
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.detalleRegistro(request, buscar.getCapilla()).getDatos(), urlConsulta,
+				authentication),"No hay registros en el dia");
+	}	
 
 	private String formatHoras(String hora) throws ParseException {
 		Date dateF = new SimpleDateFormat("HH:mm").parse(hora);
@@ -110,6 +137,12 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		Date dateF = new SimpleDateFormat("dd-MM-yyyy").parse(fecha);
         DateFormat fechaFormateada = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
         return fechaFormateada.format(dateF);
+	}
+
+	@Override
+	public Response<?> buscarVelatorios(DatosRequest request, Authentication authentication) throws IOException {
+		return providerRestTemplate.consumirServicio(dispoCapillas.catalogoVelatorio(request).getDatos(), urlConsulta,
+				authentication);
 	}
 
 	

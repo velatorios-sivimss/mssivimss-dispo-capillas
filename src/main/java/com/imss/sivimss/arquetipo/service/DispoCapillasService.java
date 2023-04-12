@@ -20,4 +20,10 @@ public interface DispoCapillasService {
 
 	Response<?> registrarEntrada(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 
+	Response<?> registrarSalida(DatosRequest request, Authentication authentication)throws IOException, ParseException;
+
+	Response<?> detallePorDia(DatosRequest request, Authentication authentication) throws IOException, ParseException;
+
+	Response<?> buscarVelatorios(DatosRequest request, Authentication authentication) throws IOException;
+
 }
