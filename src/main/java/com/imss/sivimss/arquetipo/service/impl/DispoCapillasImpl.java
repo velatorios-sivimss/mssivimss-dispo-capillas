@@ -104,8 +104,11 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		dispoCapillas.setIdUsuarioAlta(usuarioDto.getIdUsuario());
 		dispoCapillas.setFechaEntrada(formatFechas(dispoCapillasR.getFechaEntrada()));
 		dispoCapillas.setHoraEntrada(formatHoras(dispoCapillasR.getHoraEntrada()));
-		return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarEntrada().getDatos(), urlInsertarMultiple,
-						authentication), AGREGADO_CORRECTAMENTE);
+		if(dispoCapillasR.getIdCapilla()==null) {
+		throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");	
+		}
+			return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarEntrada().getDatos(), urlInsertarMultiple,
+					authentication), AGREGADO_CORRECTAMENTE);
 	}
 	
 	@Override
@@ -118,6 +121,9 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		dispoCapillas.setIdUsuarioModifica(usuarioDto.getIdUsuario());
 		dispoCapillas.setFechaSalida(formatFechas(dispoCapillasR.getFechaSalida()));
 		dispoCapillas.setHoraSalida(formatHoras(dispoCapillasR.getHoraSalida()));
+		if(dispoCapillasR.getIdCapilla()==null || dispoCapillasR.getIdDisponibilidad()==null) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
+		}
 		return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarSalida().getDatos(), urlInsertarMultiple,
 						authentication), SALIDA_CORRECTA);
 	}
