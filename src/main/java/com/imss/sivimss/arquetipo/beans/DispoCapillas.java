@@ -90,7 +90,8 @@ public class DispoCapillas {
 						+ "OS.ID_ORDEN_SERVICIO AS id, "
 						+ "(SELECT CONCAT (SPN.NOM_PERSONA, ' ', SPN.NOM_PRIMER_APELLIDO, ' ', SPN.NOM_SEGUNDO_APELLIDO)  "
 						+ " FROM SVC_FINADO SF "
-						+ "JOIN SVC_PERSONA SPN ON SF.ID_PERSONA = SPN.ID_PERSONA) AS finado "
+						+ " JOIN SVC_ORDEN_SERVICIO ON OS.ID_ORDEN_SERVICIO = SF.ID_ORDEN_SERVICIO "
+						+ "JOIN SVC_PERSONA SPN ON SF.ID_PERSONA = SPN.ID_PERSONA LIMIT 1) AS finado "
 						+ "FROM SVC_ORDEN_SERVICIO OS "
 						+ " JOIN SVC_CONTRATANTE SC ON OS.ID_CONTRATANTE = SC.ID_CONTRATANTE "
 						+ "JOIN SVC_PERSONA PS ON PS.ID_PERSONA = SC.ID_PERSONA "
@@ -209,7 +210,8 @@ public class DispoCapillas {
 						+ " OS.ID_ORDEN_SERVICIO AS idOds, OS.CVE_FOLIO AS folioOds, "
 						+ " (SELECT CONCAT (SPN.NOM_PERSONA, ' ', SPN.NOM_PRIMER_APELLIDO, ' ', SPN.NOM_SEGUNDO_APELLIDO) "
 						+ " FROM SVC_FINADO SF "
-						+ "JOIN SVC_PERSONA SPN ON SF.ID_PERSONA = SPN.ID_PERSONA) AS finado, "
+						+ " JOIN SVC_ORDEN_SERVICIO ON OS.ID_ORDEN_SERVICIO = SF.ID_ORDEN_SERVICIO "
+						+ "JOIN SVC_PERSONA SPN ON SF.ID_PERSONA = SPN.ID_PERSONA LIMIT 1) AS finado, "
 						+ " CAP.ID_CAPILLA AS idCapilla, "
 						+ "TIME_FORMAT(SDC.TIM_HORA_ENTRADA, \"%H:%i\") AS registroEntrada, "
 						+ "TIME_FORMAT(SDC.TIM_HORA_SALIDA, \"%H:%i\") AS registroSalida "
@@ -238,11 +240,11 @@ public class DispoCapillas {
 				Map<String, Object> envioDatos = new HashMap<>();
 				envioDatos.put("logoImss", "");
 				envioDatos.put("logoSistema", "");
-				envioDatos.put("ooad", reporteDto.getOoad());
-				envioDatos.put("idOoad", reporteDto.getIdOoad());
-				envioDatos.put("mes", reporteDto.getMes());
-				envioDatos.put("anio", reporteDto.getAnio());
-				envioDatos.put("nombreMes", reporteDto.getNombreMes());
+				envioDatos.put("condition", reporteDto.getCondition());
+				envioDatos.put("rutaNombreReporte", reporteDto.getRutaNombreReporte());
+				envioDatos.put("tipoReporte", reporteDto.getTipoReporte());
+				//envioDatos.put("anio", reporteDto.getAnio());
+				//envioDatos.put("nombreMes", reporteDto.getNombreMes());
 				
 				return envioDatos;
 			}

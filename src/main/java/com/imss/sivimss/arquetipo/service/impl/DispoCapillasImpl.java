@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,9 +17,10 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.imss.sivimss.arquetipo.beans.DispoCapillas;
 import com.imss.sivimss.arquetipo.exception.BadRequestException;
+import com.imss.sivimss.arquetipo.model.ReporteDto;
 import com.imss.sivimss.arquetipo.model.UsuarioDto;
 import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
-import com.imss.sivimss.arquetipo.model.request.BuscarRegistroMensual;
+import com.imss.sivimss.arquetipo.model.request.BuscarRegistroMensualRequest;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.service.DispoCapillasService;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
@@ -42,6 +44,9 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	
 	@Value("${endpoints.dominio-insertar-multiple}")
 	private String urlInsertarMultiple;
+	
+	@Value("${endpoints.dominio-reportes}")
+	private String urlReportes;
 
 	@Autowired
 	private ProviderServiceRestTemplate providerRestTemplate;
@@ -58,13 +63,13 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	public Response<?> buscarRegistrosPorMes(DatosRequest request, Authentication authentication)
 			throws IOException, ParseException {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
-		BuscarRegistroMensual buscarMensual = gson.fromJson(datosJson, BuscarRegistroMensual .class);
+		BuscarRegistroMensualRequest buscarMensual = gson.fromJson(datosJson, BuscarRegistroMensualRequest .class);
 		String fechaCompleta = buscarMensual.getMes() +"-" +buscarMensual.getAnio();
 		Date dateF = new SimpleDateFormat("MMMM-yyyy").parse(fechaCompleta);
         DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
         String fecha=anioMes.format(dateF);
         log.info("estoy en: " +fecha);
-		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getVelatorio(), fecha).getDatos(), urlPaginado,
+		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getVelatorio(), fecha).getDatos(), urlConsulta,
 				authentication);
 	}
 
@@ -74,7 +79,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		BuscarDispoCapillasRequest buscar = gson.fromJson(datosJson, BuscarDispoCapillasRequest .class);
 		
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request, buscar).getDatos(), urlPaginado,
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request, buscar).getDatos(), urlConsulta,
 				authentication), SIN_INFORMACION);
 	}
 
@@ -86,7 +91,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 
 	@Override
 	public Response<?> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException {
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasOcupadas(request).getDatos(), urlPaginado,
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasOcupadas(request).getDatos(), urlConsulta,
 				authentication), "Sin información");
 	}
 
@@ -145,5 +150,13 @@ public class DispoCapillasImpl implements DispoCapillasService{
 				authentication);
 	}
 
+	@Override
+	public Response<?> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException {
 	
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		ReporteDto reporteDto= gson.fromJson(datosJson, ReporteDto.class);
+		Map<String, Object> envioDatos = new DispoCapillas().generarReporte(reporteDto);
+		return providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
+				authentication);
+	}
 }

@@ -72,4 +72,11 @@ public class DispoCapillasController {
 		return dispoCapillasService.detallePorDia(request,authentication);
       
 	}
+	
+	@PostMapping("/descargar-reporte")
+	public Response<?> descargarReporte(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+	
+		return dispoCapillasService.descargarDocumento(request,authentication);
+      
+	}
 }
