@@ -8,9 +8,11 @@ import javax.xml.bind.DatatypeConverter;
 import org.springframework.http.HttpStatus;
 
 import com.imss.sivimss.arquetipo.exception.BadRequestException;
+import com.imss.sivimss.arquetipo.model.ReporteDto;
 import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
+import com.imss.sivimss.arquetipo.util.DatosReporteDTO;
 import com.imss.sivimss.arquetipo.util.DatosRequest;
 import com.imss.sivimss.arquetipo.util.QueryHelper;
 
@@ -102,14 +104,15 @@ public class DispoCapillas {
 			public DatosRequest capillasOcupadas(DatosRequest request) {
 				String palabra = request.getDatos().get("palabra").toString();
 				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla, "
-						+ "MAX(DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\")) AS fechaEntrada, "
+						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada, "
 						+ " TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS hrEntrada,"
-						+ " SC.IND_DISPONIBILIDAD AS disponibilidad, MAX(SD.ID_DISPONIBILIDAD) AS idDisponibilidad "
+						+ " SC.IND_DISPONIBILIDAD AS disponibilidad, SD.ID_DISPONIBILIDAD AS idDisponibilidad "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
-						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 AND SV.NOM_VELATORIO='"+ palabra +"'"
-								+ " GROUP BY SC.ID_CAPILLA ";
+						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 AND SD.CVE_ESTATUS=1 "
+						+ "AND SV.NOM_VELATORIO='"+ palabra +"'"
+								+ " ORDER BY SD.ID_DISPONIBILIDAD DESC ";
 					log.info(query);
 				request.getDatos().remove("palabra");
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
@@ -127,7 +130,7 @@ public class DispoCapillas {
 				q.agregarParametroValues("CVE_ESTATUS", "1");
 				q.agregarParametroValues("ID_USUARIO_ALTA", "" + idUsuarioAlta +"");
 				q.agregarParametroValues("FEC_ALTA", " CURRENT_TIMESTAMP() ");
-				String query = q.obtenerQueryInsertar() + " $$ " + cambiarEstatusCapilla(this.idCapilla) +" $$ " + cambiarEstatusOds(this.idOrdenServicio);
+				String query = q.obtenerQueryInsertar() + " $$ " + cambiarEstatusCapilla(this.idCapilla, idUsuarioAlta) +" $$ " + cambiarEstatusOds(this.idOrdenServicio, idUsuarioAlta);
 				log.info("estoy en " +query);
 				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				 parametro.put("separador","$$");
@@ -135,11 +138,13 @@ public class DispoCapillas {
 				return request;
 			}
 
-			private String cambiarEstatusOds(Integer idOds) {
+			private String cambiarEstatusOds(Integer idOds, Integer idUsuarioModifica) {
 				DatosRequest request = new DatosRequest();
 		        Map<String, Object> parametro = new HashMap<>();
 		        final QueryHelper q = new QueryHelper("UPDATE SVC_ORDEN_SERVICIO");
 		        q.agregarParametroValues("CVE_ESTATUS", "3");
+		        q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
+				q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
 		        q.addWhere("ID_ORDEN_SERVICIO =" +idOds);
 		        String query = q.obtenerQueryActualizar();
 		        String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
@@ -148,11 +153,13 @@ public class DispoCapillas {
 		        return query;
 			}
 
-			private String cambiarEstatusCapilla(Integer idCapilla) {
+			private String cambiarEstatusCapilla(Integer idCapilla, Integer idUsuarioModifica) {
 				 DatosRequest request = new DatosRequest();
 			        Map<String, Object> parametro = new HashMap<>();
 			        final QueryHelper q = new QueryHelper("UPDATE SVC_CAPILLA");
 			        q.agregarParametroValues("IND_DISPONIBILIDAD", "0");
+			        q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
+					q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
 			        q.addWhere("ID_CAPILLA =" +idCapilla);
 			        String query = q.obtenerQueryActualizar();
 			        String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
@@ -169,8 +176,9 @@ public class DispoCapillas {
 				q.agregarParametroValues("TIM_HORA_SALIDA", "'" + this.horaSalida + "'");
 				q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
 				q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
+				q.agregarParametroValues("CVE_ESTATUS", "0");
 				  q.addWhere("ID_DISPONIBILIDAD =" +this.idDisponibilidad);
-				String query = q.obtenerQueryActualizar()  + " $$ " + cambiarCapillaDisponible(this.idCapilla);
+				String query = q.obtenerQueryActualizar()  + " $$ " + cambiarCapillaDisponible(this.idCapilla, idUsuarioModifica);
 				log.info("estoy en " +query);
 				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				 parametro.put("separador","$$");
@@ -179,7 +187,7 @@ public class DispoCapillas {
 				return request;
 			}
 
-			private String cambiarCapillaDisponible(Integer idCapilla) {
+			private String cambiarCapillaDisponible(Integer idCapilla, Integer idUsuarioModifica) {
 				DatosRequest request = new DatosRequest();
 				Map<String, Object> parametro = new HashMap<>();
 				final QueryHelper q = new QueryHelper("UPDATE SVC_CAPILLA ");
@@ -219,10 +227,24 @@ public class DispoCapillas {
 
 			public DatosRequest  catalogoVelatorio(DatosRequest request) {
 				String query = "SELECT ID_VELATORIO AS id, NOM_VELATORIO AS velatorio "
-						+ " FROM svc_velatorio";
+						+ " FROM SVC_VELATORIO";
 				log.info(query);
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
+			}
+
+			public Map<String, Object> generarReporte(ReporteDto reporteDto) {
+			
+				Map<String, Object> envioDatos = new HashMap<>();
+				envioDatos.put("logoImss", "");
+				envioDatos.put("logoSistema", "");
+				envioDatos.put("ooad", reporteDto.getOoad());
+				envioDatos.put("idOoad", reporteDto.getIdOoad());
+				envioDatos.put("mes", reporteDto.getMes());
+				envioDatos.put("anio", reporteDto.getAnio());
+				envioDatos.put("nombreMes", reporteDto.getNombreMes());
+				
+				return envioDatos;
 			}
 
 			
