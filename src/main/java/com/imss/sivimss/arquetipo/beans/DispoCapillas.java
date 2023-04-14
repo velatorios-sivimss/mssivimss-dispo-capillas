@@ -1,6 +1,11 @@
 package com.imss.sivimss.arquetipo.beans;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
@@ -231,12 +236,17 @@ public class DispoCapillas {
 				return request;
 			}
 
-			public Map<String, Object> generarReporte(ReporteDto reporteDto) {
+			public Map<String, Object> generarReporte(ReporteDto reporteDto) throws ParseException {
 			
+				String fechaCompleta= reporteDto.getMes() + "-"+ reporteDto.getAnio();
+				Date dateF = new SimpleDateFormat("MMMM-yyyy").parse(fechaCompleta);
+		        DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
+		        String fecha=anioMes.format(dateF);
+		        log.info("estoy en:" +fecha);
 				Map<String, Object> envioDatos = new HashMap<>();
 				envioDatos.put("logoImss", "");
 				envioDatos.put("logoSistema", "");
-				envioDatos.put("condition", reporteDto.getCondition());
+				envioDatos.put("condition", " AND SDC.FEC_ENTRADA LIKE '%"+fecha+"%' AND SV.NOM_VELATORIO = '"+reporteDto.getVelatorio()+"'");
 				envioDatos.put("rutaNombreReporte", reporteDto.getRutaNombreReporte());
 				envioDatos.put("tipoReporte", reporteDto.getTipoReporte());
 				//envioDatos.put("anio", reporteDto.getAnio());

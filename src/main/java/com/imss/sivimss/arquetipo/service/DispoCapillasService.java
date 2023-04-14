@@ -26,6 +26,6 @@ public interface DispoCapillasService {
 
 	Response<?> buscarVelatorios(DatosRequest request, Authentication authentication) throws IOException;
 
-	Response<?> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException;
+	Response<?> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 
 }

@@ -31,6 +31,7 @@ logos:
 
 endpoints:
    dominio-consulta: http://localhost:8090/mssivimss-mod-catalogos/generico/consulta
+   
    dominio-consulta-paginado: http://localhost:8090/mssivimss-mod-catalogos/generico/paginado
    dominio-crear: http://localhost:8090/mssivimss-mod-catalogos/generico/crear
    dominio-insertar-multiple: http://localhost:8090/mssivimss-mod-catalogos/generico/insertarMultiple

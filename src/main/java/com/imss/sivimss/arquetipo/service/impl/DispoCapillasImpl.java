@@ -157,7 +157,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	}
 
 	@Override
-	public Response<?> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<?> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 	
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		ReporteDto reporteDto= gson.fromJson(datosJson, ReporteDto.class);

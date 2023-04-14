@@ -127,7 +127,7 @@ public class DispoCapillasController {
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
 	@PostMapping("/descargar-reporte")
-	public CompletableFuture<?> descargarReporte(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> descargarReporte(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
 	
 		Response<?> response = dispoCapillasService.descargarDocumento(request,authentication);
 		return CompletableFuture
