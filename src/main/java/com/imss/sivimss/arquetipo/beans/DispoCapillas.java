@@ -5,14 +5,10 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.springframework.http.HttpStatus;
-
-import com.imss.sivimss.arquetipo.exception.BadRequestException;
 import com.imss.sivimss.arquetipo.model.ReporteDto;
 import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
-import com.imss.sivimss.arquetipo.util.DatosReporteDTO;
 import com.imss.sivimss.arquetipo.util.DatosRequest;
 import com.imss.sivimss.arquetipo.util.QueryHelper;
 
@@ -85,7 +81,7 @@ public class DispoCapillas {
 			}
 
 			public DatosRequest buscarOrdenServicio(DatosRequest request) {
-				String palabra = request.getDatos().get("palabra").toString();
+				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
 				String query = "SELECT CONCAT (PS.NOM_PERSONA, ' ', PS.NOM_PRIMER_APELLIDO, ' ', PS.NOM_SEGUNDO_APELLIDO) AS nombreContratante, "
 						+ "OS.ID_ORDEN_SERVICIO AS id, "
 						+ "(SELECT CONCAT (SPN.NOM_PERSONA, ' ', SPN.NOM_PRIMER_APELLIDO, ' ', SPN.NOM_SEGUNDO_APELLIDO)  "
@@ -97,25 +93,26 @@ public class DispoCapillas {
 						+ "JOIN SVC_PERSONA PS ON PS.ID_PERSONA = SC.ID_PERSONA "
 						+ " WHERE OS.CVE_ESTATUS = 2 OR OS.CVE_ESTATUS = 3 AND OS.CVE_FOLIO ="+ Integer.parseInt(palabra) +"";
 					log.info(query);
-				request.getDatos().remove("palabra");
+				request.getDatos().remove(""+AppConstantes.PALABRA+"");
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
 			}
 
 			public DatosRequest capillasOcupadas(DatosRequest request) {
-				String palabra = request.getDatos().get("palabra").toString();
+				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
 				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla, "
-						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada, "
-						+ " TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS hrEntrada,"
-						+ " SC.IND_DISPONIBILIDAD AS disponibilidad, SD.ID_DISPONIBILIDAD AS idDisponibilidad "
+						+ "SC.IND_DISPONIBILIDAD AS disponibilidad, MAX(SD.ID_DISPONIBILIDAD) AS idDisponibilidad, "
+						+ "MAX(DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\")) AS fechaEntrada, "
+						+ "MAX(CONCAT(DATE_FORMAT(SD.FEC_ENTRADA, \" \"), "
+						+ "TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\"))) AS horaEntrada "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
-						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
-						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 AND SD.CVE_ESTATUS=1 "
-						+ "AND SV.NOM_VELATORIO='"+ palabra +"'"
-								+ " ORDER BY SD.ID_DISPONIBILIDAD DESC ";
+						+ "JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
+						+ "WHERE  SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 "
+						+ "AND SV.NOM_VELATORIO='"+palabra+"' "
+						+ "GROUP BY SD.ID_CAPILLA ORDER BY fechaEntrada DESC";
 					log.info(query);
-				request.getDatos().remove("palabra");
+				request.getDatos().remove(""+AppConstantes.PALABRA+"");
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
 			}
@@ -130,9 +127,9 @@ public class DispoCapillas {
 				q.agregarParametroValues("ID_ORDEN_SERVICIO", "" + this.idOrdenServicio + "");
 				q.agregarParametroValues("CVE_ESTATUS", "1");
 				q.agregarParametroValues("ID_USUARIO_ALTA", "" + idUsuarioAlta +"");
-				q.agregarParametroValues("FEC_ALTA", " CURRENT_TIMESTAMP() ");
+				q.agregarParametroValues("FEC_ALTA", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				String query = q.obtenerQueryInsertar() + " $$ " + cambiarEstatusCapilla(this.idCapilla, idUsuarioAlta) +" $$ " + cambiarEstatusOds(this.idOrdenServicio, idUsuarioAlta);
-				log.info("estoy en " +query);
+				log.info(query);
 				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				 parametro.put("separador","$$");
 				request.setDatos(parametro);
@@ -144,8 +141,8 @@ public class DispoCapillas {
 		        Map<String, Object> parametro = new HashMap<>();
 		        final QueryHelper q = new QueryHelper("UPDATE SVC_ORDEN_SERVICIO");
 		        q.agregarParametroValues("CVE_ESTATUS", "3");
-		        q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
-				q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
+		        q.agregarParametroValues("ID_USUARIO_MODIFICA ", "" + idUsuarioModifica +"");
+				q.agregarParametroValues("FEC_ACTUALIZACION ", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 		        q.addWhere("ID_ORDEN_SERVICIO =" +idOds);
 		        String query = q.obtenerQueryActualizar();
 		        String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
@@ -159,8 +156,8 @@ public class DispoCapillas {
 			        Map<String, Object> parametro = new HashMap<>();
 			        final QueryHelper q = new QueryHelper("UPDATE SVC_CAPILLA");
 			        q.agregarParametroValues("IND_DISPONIBILIDAD", "0");
-			        q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
-					q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
+			        q.agregarParametroValues(" ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
+					q.agregarParametroValues(" FEC_ACTUALIZACION", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 			        q.addWhere("ID_CAPILLA =" +idCapilla);
 			        String query = q.obtenerQueryActualizar();
 			        String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
@@ -176,8 +173,7 @@ public class DispoCapillas {
 				q.agregarParametroValues("FEC_SALIDA", "'" + this.fechaSalida + "'");
 				q.agregarParametroValues("TIM_HORA_SALIDA", "'" + this.horaSalida + "'");
 				q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
-				q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
-				q.agregarParametroValues("CVE_ESTATUS", "0");
+				q.agregarParametroValues("FEC_ACTUALIZACION", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				  q.addWhere("ID_DISPONIBILIDAD =" +this.idDisponibilidad);
 				String query = q.obtenerQueryActualizar()  + " $$ " + cambiarCapillaDisponible(this.idCapilla, idUsuarioModifica);
 				log.info("estoy en " +query);
@@ -194,7 +190,7 @@ public class DispoCapillas {
 				final QueryHelper q = new QueryHelper("UPDATE SVC_CAPILLA ");
 				q.agregarParametroValues("IND_DISPONIBILIDAD", "1");
 				q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
-				q.agregarParametroValues("FEC_ACTUALIZACION", " CURRENT_TIMESTAMP() ");
+				q.agregarParametroValues("FEC_ACTUALIZACION", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				  q.addWhere("ID_CAPILLA =" +idCapilla);
 				String query = q.obtenerQueryActualizar();
 				log.info("estoy en " +query);

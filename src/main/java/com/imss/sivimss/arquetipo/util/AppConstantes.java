@@ -33,6 +33,10 @@ public class AppConstantes {
 	public static final String FORBIDDENEXCEPTION_MENSAJE  = "No tiene autorización para realizar la solicitud.";
 	public static final String CIRCUITBREAKER = "El servicio no responde, no permite más llamadas.";
 	
+	public static final String PALABRA = "palabra";
+	public static final String INDESTATUS  = "IND_ESTATUS";
+	public static final String CURRENT_TIMESTAMP  = "CURRENT_TIMESTAMP()";
+	
 	private AppConstantes() {
 	    throw new IllegalStateException("AppConstantes class");
 	  }
