@@ -105,7 +105,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		dispoCapillas.setFechaEntrada(formatFechas(dispoCapillasR.getFechaEntrada()));
 		dispoCapillas.setHoraEntrada(formatHoras(dispoCapillasR.getHoraEntrada()));
 		if(dispoCapillasR.getIdCapilla()==null) {
-		throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");	
+		throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta ");	
 		}
 			return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarEntrada().getDatos(), urlInsertarMultiple,
 					authentication), AGREGADO_CORRECTAMENTE);
@@ -161,6 +161,9 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		ReporteDto reporteDto= gson.fromJson(datosJson, ReporteDto.class);
+		if(reporteDto.getAnio()==null || reporteDto.getMes()==null || reporteDto.getVelatorio()==null) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Falta incompleta");
+		}
 		Map<String, Object> envioDatos = new DispoCapillas().generarReporte(reporteDto);
 		return providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
 				authentication);
