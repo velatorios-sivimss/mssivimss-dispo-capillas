@@ -77,10 +77,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	@Override
 	public Response<?> buscarCapillasDisponibles(DatosRequest request, Authentication authentication)
 			throws IOException {
-		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
-		BuscarDispoCapillasRequest buscar = gson.fromJson(datosJson, BuscarDispoCapillasRequest .class);
-		
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request, buscar).getDatos(), urlConsulta,
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request).getDatos(), urlConsulta,
 				authentication), SIN_INFORMACION);
 	}
 

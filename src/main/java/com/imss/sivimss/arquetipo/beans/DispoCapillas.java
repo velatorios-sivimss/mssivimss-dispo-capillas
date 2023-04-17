@@ -59,6 +59,7 @@ public class DispoCapillas {
 			public DatosRequest registrosPorMes(DatosRequest request, String velatorio, String fecha) {
 				String query = "SELECT "
 						+ "SC.ID_CAPILLA AS idCapilla,"
+						+ " SC.CVE_COLOR AS color, "
 						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada,"
 						+ " TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS hrEntrada, "
 						+ "DATE_FORMAT(SD.FEC_SALIDA, \"%d-%m-%Y\") AS fechaSalida, "
@@ -74,12 +75,14 @@ public class DispoCapillas {
 				return request;
 			}
 
-			public DatosRequest capillasDisponibles(DatosRequest request, BuscarDispoCapillasRequest buscar) {
+			public DatosRequest capillasDisponibles(DatosRequest request) {
+				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
 				String query = "SELECT SC.ID_CAPILLA AS id, SC.NOM_CAPILLA AS nomCapilla,"
+						+ " SC.ID_VELATORIO AS idVelatorio, "
 						+ " SC.IND_DISPONIBILIDAD AS disponibilidad "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
-						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=1 AND SV.NOM_VELATORIO='"+ buscar.getVelatorio() +"'"
+						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=1 AND SV.NOM_VELATORIO='"+ palabra +"'"
 								+ " GROUP BY SC.ID_CAPILLA";
 					log.info(query);
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
@@ -250,8 +253,6 @@ public class DispoCapillas {
 				envioDatos.put("condition", " AND SDC.FEC_ENTRADA LIKE '%"+fecha+"%' AND SV.NOM_VELATORIO = '"+reporteDto.getVelatorio()+"'");
 				envioDatos.put("rutaNombreReporte", reporteDto.getRutaNombreReporte());
 				envioDatos.put("tipoReporte", reporteDto.getTipoReporte());
-				//envioDatos.put("anio", reporteDto.getAnio());
-				//envioDatos.put("nombreMes", reporteDto.getNombreMes());
 				
 				return envioDatos;
 			}
@@ -262,7 +263,7 @@ public class DispoCapillas {
 				envioDatos.put("logoSistema", "");
 				envioDatos.put("rutaNombreReporte", reporte.getRutaNombreReporte());
 				envioDatos.put("tipoReporte", reporte.getTipoReporte());
-				envioDatos.put("velatorio", reporte.getVelatorio());
+				envioDatos.put("velatorio", reporte.getVelatorio() +" " +reporte.getIdVelatorio());
 				envioDatos.put("folio", reporte.getFolio());
 				envioDatos.put("noCapilla", reporte.getNoCapilla());
 				envioDatos.put("nomContratante", reporte.getNomContratante());
