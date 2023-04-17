@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.xml.bind.DatatypeConverter;
 
 import com.imss.sivimss.arquetipo.model.ReporteDto;
+import com.imss.sivimss.arquetipo.model.ReporteEntregaCapillaDto;
 import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
@@ -252,6 +253,20 @@ public class DispoCapillas {
 				//envioDatos.put("anio", reporteDto.getAnio());
 				//envioDatos.put("nombreMes", reporteDto.getNombreMes());
 				
+				return envioDatos;
+			}
+
+			public Map<String, Object> reporteEntregaCapillas(ReporteEntregaCapillaDto reporte) {
+				Map<String, Object> envioDatos = new HashMap<>();
+				envioDatos.put("logoImss", "");
+				envioDatos.put("logoSistema", "");
+				envioDatos.put("rutaNombreReporte", reporte.getRutaNombreReporte());
+				envioDatos.put("tipoReporte", reporte.getTipoReporte());
+				envioDatos.put("velatorio", reporte.getVelatorio());
+				envioDatos.put("folio", reporte.getFolio());
+				envioDatos.put("noCapilla", reporte.getNoCapilla());
+				envioDatos.put("nomContratante", reporte.getNomContratante());
+				envioDatos.put("nomRepresentanteVelatorio", reporte.getNomRepresentanteVelatorio());
 				return envioDatos;
 			}
 

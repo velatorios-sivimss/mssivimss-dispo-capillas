@@ -28,4 +28,6 @@ public interface DispoCapillasService {
 
 	Response<?> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 
+	Response<?> descargarEntregaCapilla(DatosRequest request, Authentication authentication) throws IOException;
+
 }

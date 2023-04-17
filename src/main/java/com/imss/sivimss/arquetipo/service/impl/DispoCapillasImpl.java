@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.imss.sivimss.arquetipo.beans.DispoCapillas;
 import com.imss.sivimss.arquetipo.exception.BadRequestException;
 import com.imss.sivimss.arquetipo.model.ReporteDto;
+import com.imss.sivimss.arquetipo.model.ReporteEntregaCapillaDto;
 import com.imss.sivimss.arquetipo.model.UsuarioDto;
 import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
 import com.imss.sivimss.arquetipo.model.request.BuscarRegistroMensualRequest;
@@ -162,9 +163,18 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		ReporteDto reporteDto= gson.fromJson(datosJson, ReporteDto.class);
 		if(reporteDto.getAnio()==null || reporteDto.getMes()==null || reporteDto.getVelatorio()==null) {
-			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Falta incompleta");
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Falta infomación");
 		}
 		Map<String, Object> envioDatos = new DispoCapillas().generarReporte(reporteDto);
+		return providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
+				authentication);
+	}
+
+	@Override
+	public Response<?> descargarEntregaCapilla(DatosRequest request, Authentication authentication) throws IOException {
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		ReporteEntregaCapillaDto reporte= gson.fromJson(datosJson, ReporteEntregaCapillaDto.class);
+		Map<String, Object> envioDatos = new DispoCapillas().reporteEntregaCapillas(reporte);
 		return providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
 				authentication);
 	}
