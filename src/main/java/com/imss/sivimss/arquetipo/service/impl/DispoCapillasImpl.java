@@ -70,7 +70,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
         DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
         String fecha=anioMes.format(dateF);
         log.info("estoy en: " +fecha);
-		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getVelatorio(), fecha).getDatos(), urlConsulta,
+		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getIdVelatorio(), fecha).getDatos(), urlConsulta,
 				authentication);
 	}
 
@@ -132,7 +132,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		String datosJson = String.valueOf(request.getDatos().get("datos"));
 		BuscarDispoCapillasRequest buscar = gson.fromJson(datosJson, BuscarDispoCapillasRequest .class);
         dispoCapillas.setFechaEntrada(formatFechas(buscar.getFecha()));
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.detalleRegistro(request, buscar.getCapilla()).getDatos(), urlConsulta,
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.detalleRegistro(request, buscar.getIdCapilla()).getDatos(), urlConsulta,
 				authentication),"No hay registros en el dia");
 	}	
 

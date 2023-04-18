@@ -17,6 +17,7 @@ import lombok.Setter;
 public class BuscarRegistroMensualRequest {
 	
 	private String velatorio;
+	private Integer idVelatorio;
 	private String mes;
 	private String anio;
 
