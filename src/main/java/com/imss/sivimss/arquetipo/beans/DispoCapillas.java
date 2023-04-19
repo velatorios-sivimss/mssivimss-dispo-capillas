@@ -112,13 +112,12 @@ public class DispoCapillas {
 				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla, "
 						+ "SC.IND_DISPONIBILIDAD AS disponibilidad, MAX(SD.ID_DISPONIBILIDAD) AS idDisponibilidad, "
 						+ "MAX(DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\")) AS fechaEntrada, "
-						+ "MAX(CONCAT(DATE_FORMAT(SD.FEC_ENTRADA, \" \"), "
-						+ "TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\"))) AS horaEntrada,"
+						+ "TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS horaEntrada,"
 						+ " SV.NOM_VELATORIO AS nomVelatorio "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ "JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
-						+ "WHERE  SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 "
+						+ "WHERE  SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 AND SD.CVE_ESTATUS=0 "
 						+ "AND SC.ID_VELATORIO="+Integer.parseInt(palabra)+" "
 						+ "GROUP BY SD.ID_CAPILLA ORDER BY fechaEntrada DESC";
 					log.info(query);
@@ -135,7 +134,7 @@ public class DispoCapillas {
 				q.agregarParametroValues("FEC_ENTRADA", "'" + this.fechaEntrada + "'");
 				q.agregarParametroValues("TIM_HORA_ENTRADA", "'" + this.horaEntrada + "'");
 				q.agregarParametroValues("ID_ORDEN_SERVICIO", "" + this.idOrdenServicio + "");
-				q.agregarParametroValues("CVE_ESTATUS", "1");
+				q.agregarParametroValues("CVE_ESTATUS", "0");
 				q.agregarParametroValues("ID_USUARIO_ALTA", "" + idUsuarioAlta +"");
 				q.agregarParametroValues("FEC_ALTA", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				String query = q.obtenerQueryInsertar() + " $$ " + cambiarEstatusCapilla(this.idCapilla, idUsuarioAlta) +" $$ " + cambiarEstatusOds(this.idOrdenServicio, idUsuarioAlta);
@@ -183,6 +182,7 @@ public class DispoCapillas {
 				q.agregarParametroValues("FEC_SALIDA", "'" + this.fechaSalida + "'");
 				q.agregarParametroValues("TIM_HORA_SALIDA", "'" + this.horaSalida + "'");
 				q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
+				q.agregarParametroValues("CVE_ESTATUS", "1");
 				q.agregarParametroValues("FEC_ACTUALIZACION", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				  q.addWhere("ID_DISPONIBILIDAD =" +this.idDisponibilidad);
 				String query = q.obtenerQueryActualizar()  + " $$ " + cambiarCapillaDisponible(this.idCapilla, idUsuarioModifica);
