@@ -110,8 +110,8 @@ public class DispoCapillas {
 			public DatosRequest capillasOcupadas(DatosRequest request) {
 				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
 				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla, "
-						+ "SC.IND_DISPONIBILIDAD AS disponibilidad, MAX(SD.ID_DISPONIBILIDAD) AS idDisponibilidad, "
-						+ "MAX(DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\")) AS fechaEntrada, "
+						+ "SC.IND_DISPONIBILIDAD AS disponibilidad, SD.ID_DISPONIBILIDAD AS idDisponibilidad, "
+						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada, "
 						+ "TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS horaEntrada,"
 						+ " SV.NOM_VELATORIO AS nomVelatorio "
 						+ "FROM SVC_CAPILLA SC "
