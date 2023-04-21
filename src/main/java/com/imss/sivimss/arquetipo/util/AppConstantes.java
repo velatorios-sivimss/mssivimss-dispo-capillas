@@ -36,6 +36,7 @@ public class AppConstantes {
 	public static final String PALABRA = "palabra";
 	public static final String INDESTATUS  = "IND_ESTATUS";
 	public static final String CURRENT_TIMESTAMP  = "CURRENT_TIMESTAMP()";
+	public static final String CVE_ESTATUS = "CVE_ESTATUS";
 	
 	private AppConstantes() {
 	    throw new IllegalStateException("AppConstantes class");

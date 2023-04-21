@@ -84,23 +84,26 @@ public class DispoCapillas {
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=1 AND SV.ID_VELATORIO="+ Integer.parseInt(palabra) +""
 								+ " GROUP BY SC.ID_CAPILLA";
-					log.info(query);
+					
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				log.info(query);
 				return request;
 			}
 
 			public DatosRequest buscarOrdenServicio(DatosRequest request) {
 				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
-				String query = "SELECT CONCAT (PS.NOM_PERSONA, ' ', PS.NOM_PRIMER_APELLIDO, ' ', PS.NOM_SEGUNDO_APELLIDO) AS nombreContratante, "
-						+ "OS.ID_ORDEN_SERVICIO AS id, "
-						+ "(SELECT CONCAT (SPN.NOM_PERSONA, ' ', SPN.NOM_PRIMER_APELLIDO, ' ', SPN.NOM_SEGUNDO_APELLIDO)  "
-						+ " FROM SVC_FINADO SF "
-						+ " JOIN SVC_ORDEN_SERVICIO ON OS.ID_ORDEN_SERVICIO = SF.ID_ORDEN_SERVICIO "
-						+ "JOIN SVC_PERSONA SPN ON SF.ID_PERSONA = SPN.ID_PERSONA LIMIT 1) AS finado "
-						+ "FROM SVC_ORDEN_SERVICIO OS "
-						+ " JOIN SVC_CONTRATANTE SC ON OS.ID_CONTRATANTE = SC.ID_CONTRATANTE "
-						+ "JOIN SVC_PERSONA PS ON PS.ID_PERSONA = SC.ID_PERSONA "
-						+ " WHERE OS.CVE_ESTATUS = 2 OR OS.CVE_ESTATUS = 3 AND OS.CVE_FOLIO ="+ Integer.parseInt(palabra) +"";
+				String query = "SELECT CONCAT (PS.NOM_PERSONA, ' ', PS.NOM_PRIMER_APELLIDO, ' ', PS.NOM_SEGUNDO_APELLIDO) AS finado, " 
+								+ "OS.ID_ORDEN_SERVICIO AS idOds, "
+								+ "(SELECT CONCAT (SPN.NOM_PERSONA, ' ', SPN.NOM_PRIMER_APELLIDO, ' ', SPN.NOM_SEGUNDO_APELLIDO) "
+								+ "FROM SVC_CONTRATANTE SC  "
+								+ "JOIN SVC_ORDEN_SERVICIO ON OS.ID_CONTRATANTE = SC.ID_CONTRATANTE  "
+								+ "JOIN SVC_PERSONA SPN ON SC.ID_PERSONA = SPN.ID_PERSONA LIMIT 1) AS nombreContratante, "
+								+ "CONCAT(SUS.NOM_USUARIO, ' ', SUS.NOM_APELLIDO_PATERNO, ' ', SUS.NOM_APELLIDO_MATERNO )AS representanteVelatorio "
+								+ "FROM SVC_ORDEN_SERVICIO OS  "
+								+ "JOIN SVC_FINADO SF ON OS.ID_ORDEN_SERVICIO = SF.ID_ORDEN_SERVICIO  "
+								+ "JOIN SVT_USUARIOS SUS ON SF.ID_VELATORIO = SUS.ID_VELATORIO "
+								+ "JOIN SVC_PERSONA PS ON PS.ID_PERSONA = SF.ID_PERSONA "
+								+ "WHERE OS.CVE_ESTATUS = 2 OR OS.CVE_ESTATUS = 3 AND OS.CVE_FOLIO = '"+ palabra +"' ";
 					log.info(query);
 				request.getDatos().remove(""+AppConstantes.PALABRA+"");
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
@@ -134,7 +137,7 @@ public class DispoCapillas {
 				q.agregarParametroValues("FEC_ENTRADA", "'" + this.fechaEntrada + "'");
 				q.agregarParametroValues("TIM_HORA_ENTRADA", "'" + this.horaEntrada + "'");
 				q.agregarParametroValues("ID_ORDEN_SERVICIO", "" + this.idOrdenServicio + "");
-				q.agregarParametroValues("CVE_ESTATUS", "0");
+				q.agregarParametroValues(""+AppConstantes.CVE_ESTATUS+"", "0");
 				q.agregarParametroValues("ID_USUARIO_ALTA", "" + idUsuarioAlta +"");
 				q.agregarParametroValues("FEC_ALTA", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				String query = q.obtenerQueryInsertar() + " $$ " + cambiarEstatusCapilla(this.idCapilla, idUsuarioAlta) +" $$ " + cambiarEstatusOds(this.idOrdenServicio, idUsuarioAlta);
@@ -149,7 +152,7 @@ public class DispoCapillas {
 				DatosRequest request = new DatosRequest();
 		        Map<String, Object> parametro = new HashMap<>();
 		        final QueryHelper q = new QueryHelper("UPDATE SVC_ORDEN_SERVICIO");
-		        q.agregarParametroValues("CVE_ESTATUS", "3");
+		        q.agregarParametroValues(""+AppConstantes.CVE_ESTATUS+"", "3");
 		        q.agregarParametroValues("ID_USUARIO_MODIFICA ", "" + idUsuarioModifica +"");
 				q.agregarParametroValues("FEC_ACTUALIZACION ", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 		        q.addWhere("ID_ORDEN_SERVICIO =" +idOds);
@@ -182,7 +185,7 @@ public class DispoCapillas {
 				q.agregarParametroValues("FEC_SALIDA", "'" + this.fechaSalida + "'");
 				q.agregarParametroValues("TIM_HORA_SALIDA", "'" + this.horaSalida + "'");
 				q.agregarParametroValues("ID_USUARIO_MODIFICA", "" + idUsuarioModifica +"");
-				q.agregarParametroValues("CVE_ESTATUS", "1");
+				q.agregarParametroValues(""+AppConstantes.CVE_ESTATUS+"", "1");
 				q.agregarParametroValues("FEC_ACTUALIZACION", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				  q.addWhere("ID_DISPONIBILIDAD =" +this.idDisponibilidad);
 				String query = q.obtenerQueryActualizar()  + " $$ " + cambiarCapillaDisponible(this.idCapilla, idUsuarioModifica);
@@ -250,9 +253,7 @@ public class DispoCapillas {
 		        String fecha=anioMes.format(dateF);
 		        log.info("estoy en:" +fecha);
 				Map<String, Object> envioDatos = new HashMap<>();
-				envioDatos.put("logoImss", "");
-				envioDatos.put("logoSistema", "");
-				envioDatos.put("condition", " AND SDC.FEC_ENTRADA LIKE '%"+fecha+"%' AND SV.NOM_VELATORIO = '"+reporteDto.getVelatorio()+"'");
+				envioDatos.put("condition", " AND SDC.FEC_ENTRADA LIKE '%"+fecha+"%' AND SV.ID_VELATORIO = "+reporteDto.getIdVelatorio()+"");
 				envioDatos.put("rutaNombreReporte", reporteDto.getRutaNombreReporte());
 				envioDatos.put("tipoReporte", reporteDto.getTipoReporte());
 				if(reporteDto.getTipoReporte().equals("xls")) {
@@ -263,8 +264,6 @@ public class DispoCapillas {
 
 			public Map<String, Object> reporteEntregaCapillas(ReporteEntregaCapillaDto reporte) {
 				Map<String, Object> envioDatos = new HashMap<>();
-				envioDatos.put("logoImss", "");
-				envioDatos.put("logoSistema", "");
 				envioDatos.put("rutaNombreReporte", reporte.getRutaNombreReporte());
 				envioDatos.put("tipoReporte", reporte.getTipoReporte());
 				envioDatos.put("velatorio", reporte.getVelatorio() +" " +reporte.getIdVelatorio());

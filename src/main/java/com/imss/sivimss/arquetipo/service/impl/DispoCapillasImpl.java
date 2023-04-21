@@ -159,7 +159,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		ReporteDto reporteDto= gson.fromJson(datosJson, ReporteDto.class);
-		if(reporteDto.getAnio()==null || reporteDto.getMes()==null || reporteDto.getVelatorio()==null) {
+		if(reporteDto.getAnio()==null || reporteDto.getMes()==null || reporteDto.getIdVelatorio()==null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Falta infomación");
 		}
 		Map<String, Object> envioDatos = new DispoCapillas().generarReporte(reporteDto);
