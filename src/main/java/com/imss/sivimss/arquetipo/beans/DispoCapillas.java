@@ -266,11 +266,9 @@ public class DispoCapillas {
 				Map<String, Object> envioDatos = new HashMap<>();
 				envioDatos.put("rutaNombreReporte", reporte.getRutaNombreReporte());
 				envioDatos.put("tipoReporte", reporte.getTipoReporte());
-				envioDatos.put("velatorio", reporte.getVelatorio() +" " +reporte.getIdVelatorio());
-				//envioDatos.put("folio", reporte.getFolio());
-				envioDatos.put("noCapilla", reporte.getNoCapilla());
-				envioDatos.put("nomContratante", reporte.getNomContratante());
-				envioDatos.put("nomRepresentanteVelatorio", reporte.getNomRepresentanteVelatorio());
+				envioDatos.put("idCapilla", reporte.getIdCapilla());
+				envioDatos.put("folioOds", reporte.getFolioOds());
+				//envioDatos.put("nomRepresentanteVelatorio", reporte.getNomRepresentanteVelatorio());
 				return envioDatos;
 			}
 
