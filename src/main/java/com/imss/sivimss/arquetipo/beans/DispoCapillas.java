@@ -248,7 +248,7 @@ public class DispoCapillas {
 			public Map<String, Object> generarReporte(ReporteDto reporteDto) throws ParseException {
 			
 				String fechaCompleta= reporteDto.getMes() + "-"+ reporteDto.getAnio();
-				Date dateF = new SimpleDateFormat("MMMM-yyyy").parse(fechaCompleta);
+				Date dateF = new SimpleDateFormat("MM-yyyy").parse(fechaCompleta);
 		        DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
 		        String fecha=anioMes.format(dateF);
 		        log.info("estoy en:" +fecha);

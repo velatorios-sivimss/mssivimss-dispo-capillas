@@ -66,7 +66,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		BuscarRegistroMensualRequest buscarMensual = gson.fromJson(datosJson, BuscarRegistroMensualRequest .class);
 		String fechaCompleta = buscarMensual.getMes() +"-" +buscarMensual.getAnio();
-		Date dateF = new SimpleDateFormat("MMMM-yyyy").parse(fechaCompleta);
+		Date dateF = new SimpleDateFormat("MM-yyyy").parse(fechaCompleta);
         DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
         String fecha=anioMes.format(dateF);
         log.info("estoy en: " +fecha);
