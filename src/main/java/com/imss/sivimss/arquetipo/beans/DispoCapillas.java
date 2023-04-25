@@ -266,7 +266,6 @@ public class DispoCapillas {
 				envioDatos.put("tipoReporte", reporte.getTipoReporte());
 				envioDatos.put("idCapilla", reporte.getIdCapilla());
 				envioDatos.put("folioOds", reporte.getFolioOds());
-				//envioDatos.put("nomRepresentanteVelatorio", reporte.getNomRepresentanteVelatorio());
 				return envioDatos;
 			}
 
