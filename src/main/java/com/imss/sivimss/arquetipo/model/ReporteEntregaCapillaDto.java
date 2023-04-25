@@ -12,7 +12,7 @@ public class ReporteEntregaCapillaDto {
 	
 	//private String velatorio;
 	//private Integer idVelatorio;
-	private Integer folioOds;
+	private String folioOds;
 	private Integer idCapilla;
 	//private String nomContratante;
 	//private String nomRepresentanteVelatorio;
