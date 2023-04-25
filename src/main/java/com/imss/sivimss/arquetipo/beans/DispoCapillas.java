@@ -69,7 +69,7 @@ public class DispoCapillas {
 						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
 						+ " JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ " WHERE SC.CVE_ESTATUS=1 AND SD.FEC_ENTRADA LIKE '%"+ fecha +"%' "
-						+ " AND SC.ID_VELATORIO = '"+id+"'";
+						+ " AND SC.ID_VELATORIO = '"+id+"' GROUP BY SC.ID_CAPILLA ";
 				log.info(query);
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 				return request;
