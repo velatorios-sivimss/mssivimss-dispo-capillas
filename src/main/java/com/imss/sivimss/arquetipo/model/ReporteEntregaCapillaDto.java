@@ -10,12 +10,8 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ReporteEntregaCapillaDto {
 	
-	private String velatorio;
-	private Integer idVelatorio;
-	private String folio;
-	private String noCapilla;
-	private String nomContratante;
-	private String nomRepresentanteVelatorio;
+	private String folioOds;
+	private Integer idCapilla;
 	private String rutaNombreReporte;
 	private String tipoReporte;
 

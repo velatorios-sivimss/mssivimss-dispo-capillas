@@ -11,7 +11,7 @@ import lombok.Setter;
 public class ReporteDto {
 	
 	private String velatorio;
-	//private Integer idOoad;
+	private Integer idVelatorio;
 	private String mes;
 	private String anio;
 	//private String nombreMes;

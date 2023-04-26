@@ -15,7 +15,7 @@ import com.imss.sivimss.arquetipo.util.NoRedirectSimpleClientHttpRequestFactory;
 public class ArquetipoApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ArquetipoApplication.class, args);
+		SpringApplication.run(ArquetipoApplication.class);
 	}
 
 	@Bean

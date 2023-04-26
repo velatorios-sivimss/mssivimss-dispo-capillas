@@ -66,7 +66,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		BuscarRegistroMensualRequest buscarMensual = gson.fromJson(datosJson, BuscarRegistroMensualRequest .class);
 		String fechaCompleta = buscarMensual.getMes() +"-" +buscarMensual.getAnio();
-		Date dateF = new SimpleDateFormat("MMMM-yyyy").parse(fechaCompleta);
+		Date dateF = new SimpleDateFormat("MM-yyyy").parse(fechaCompleta);
         DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
         String fecha=anioMes.format(dateF);
         log.info("estoy en: " +fecha);
@@ -102,6 +102,9 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		dispoCapillas.setIdUsuarioAlta(usuarioDto.getIdUsuario());
 		dispoCapillas.setFechaEntrada(formatFechas(dispoCapillasR.getFechaEntrada()));
 		dispoCapillas.setHoraEntrada(formatHoras(dispoCapillasR.getHoraEntrada()));
+		log.info("delegacion: " +usuarioDto.getIdDelegacion());
+		log.info("vel: " +usuarioDto.getIdVelatorio());
+		
 		if(dispoCapillasR.getIdCapilla()==null) {
 		throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta ");	
 		}
@@ -159,7 +162,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		ReporteDto reporteDto= gson.fromJson(datosJson, ReporteDto.class);
-		if(reporteDto.getAnio()==null || reporteDto.getMes()==null || reporteDto.getVelatorio()==null) {
+		if(reporteDto.getAnio()==null || reporteDto.getMes()==null || reporteDto.getIdVelatorio()==null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Falta infomación");
 		}
 		Map<String, Object> envioDatos = new DispoCapillas().generarReporte(reporteDto);
@@ -171,6 +174,9 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	public Response<?> descargarEntregaCapilla(DatosRequest request, Authentication authentication) throws IOException {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		ReporteEntregaCapillaDto reporte= gson.fromJson(datosJson, ReporteEntregaCapillaDto.class);
+		if(reporte.getFolioOds()==null || reporte.getIdCapilla()==null) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Falta infomación");
+		}
 		Map<String, Object> envioDatos = new DispoCapillas().reporteEntregaCapillas(reporte);
 		return providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
 				authentication);
