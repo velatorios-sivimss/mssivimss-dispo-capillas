@@ -69,54 +69,68 @@ public class ProviderServiceRestTemplate {
 		return respuestaGenerado;
 	}
 
-	public Response<?> respuestaProvider(String e) {
-		StringTokenizer exeception = new StringTokenizer(e, ":");
-		Gson gson = new Gson();
-		int totalToken = exeception.countTokens();
-		StringBuilder error = new StringBuilder("");
-		int i = 0;
-		int codigoError = HttpStatus.INTERNAL_SERVER_ERROR.value();
+	 public Response<?> respuestaProvider(String e) {
+	        StringTokenizer exeception = new StringTokenizer(e, ":");
+	        Gson gson = new Gson();
+	        int totalToken = exeception.countTokens();
+	        StringBuilder error = new StringBuilder("");
+	        int i = 0;
+	        int codigoError = HttpStatus.INTERNAL_SERVER_ERROR.value();
 
-		int isExceptionResponseMs = 0;
-		while (exeception.hasMoreTokens()) {
-			String str = exeception.nextToken();
-			i++;
+	        int isExceptionResponseMs = 0;
+	        while (exeception.hasMoreTokens()) {
+	            String str = exeception.nextToken();
+	            i++;
 
-			if (i == 2) {
-				String[] palabras = str.split("\\.");
-				for (String palabra : palabras) {
-					if ("BadRequestException".contains(palabra)) {
-						codigoError = HttpStatus.BAD_REQUEST.value();
-					} else if ("ResourceAccessException".contains(palabra)) {
-						codigoError = HttpStatus.REQUEST_TIMEOUT.value();
+	            if (i == 2) {
+	                String[] palabras = str.split("\\.");
+	                for (String palabra : palabras) {
+	                    if ("BadRequestException".contains(palabra)) {
+	                        codigoError = HttpStatus.BAD_REQUEST.value();
+	                    } else if ("ResourceAccessException".contains(palabra)) {
+	                        codigoError = HttpStatus.REQUEST_TIMEOUT.value();
 
-					}
-				}
-			}else if (i == 3) {
+	                    }
+	                }
+	            } else if (i == 3) {
 
-				if (str.trim().chars().allMatch( Character::isDigit )) {
-					isExceptionResponseMs = 1;
-				}
+	                if (str.trim().chars().allMatch(Character::isDigit)) {
+	                    isExceptionResponseMs = 1;
+	                }
 
-				error.append(codigoError == HttpStatus.REQUEST_TIMEOUT.value() ? AppConstantes.CIRCUITBREAKER : str);
+	                error.append(codigoError == HttpStatus.REQUEST_TIMEOUT.value() ? AppConstantes.CIRCUITBREAKER : str);
 
-			} else if (i >= 4 && isExceptionResponseMs == 1) {
-				if (i == 4) {
-					error.delete(0, error.length());
-				}
-				error.append(str).append(i != totalToken ? ":" : "");
+	            } else if (i >= 4 && isExceptionResponseMs == 1) {
+	                if (i == 4) {
+	                    error.delete(0, error.length());
+	                }
+	                error.append(str).append(i != totalToken ? ":" : "");
 
-			}
-		}
-		Response<?> response;
-		try {
-			response = isExceptionResponseMs == 1 ? gson.fromJson(error.substring(2, error.length() - 1), Response.class)
-				: new Response<>(true, codigoError, error.toString().trim(), Collections.emptyList());
-		} catch (Exception e2) {
-			return new Response<>(true, HttpStatus.REQUEST_TIMEOUT.value(), AppConstantes.CIRCUITBREAKER, Collections.emptyList());
-		}
-		 return MensajeResponseUtil.mensajeResponse(response, "");
-	}
+	            }
+	        }
+	        Response<?> response;
+	        try {
+	            if (error.length() < 2)
+	                response = new Response<>(true, codigoError, error.toString().trim(), Collections.emptyList());
+	            else {
+	                if (isExceptionResponseMs == 1) {
+	                    if (error.length() == 1) {
+	                        response = gson.fromJson(error.substring(1, error.length() - 1), Response.class);
+	                    } else if (error.length() == 2) {
+	                        response = gson.fromJson(error.substring(2, error.length() - 1), Response.class);
+	                    } else {
+	                        response = new Response<>(true, codigoError, error.toString().trim(), Collections.emptyList());
+	                    }
+	                } else {
+	                    response = new Response<>(true, codigoError, error.toString().trim(), Collections.emptyList());
+	                }
+	            }
+	        } catch (Exception e2) {
+	            log.error("ex ->" + e2.getMessage());
+	            return new Response<>(true, HttpStatus.REQUEST_TIMEOUT.value(), AppConstantes.CIRCUITBREAKER, Collections.emptyList());
+	        }
+	        return response;
+	    }
 
 	}
 
