@@ -119,7 +119,7 @@ public class DispoCapillas {
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ "JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
-						+ "WHERE  SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 AND SD.CVE_ESTATUS=0 "
+						+ "WHERE  SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=0 AND SD.IND_ACTIVO=0 "
 						+ "AND SC.ID_VELATORIO="+Integer.parseInt(palabra)+" "
 						+ "GROUP BY SD.ID_CAPILLA ORDER BY fechaEntrada DESC";
 					log.info(query);
@@ -151,7 +151,7 @@ public class DispoCapillas {
 				DatosRequest request = new DatosRequest();
 		        Map<String, Object> parametro = new HashMap<>();
 		        final QueryHelper q = new QueryHelper("UPDATE SVC_ORDEN_SERVICIO");
-		        q.agregarParametroValues(""+AppConstantes.CVE_ESTATUS+"", "3");
+		        q.agregarParametroValues("CVE_ESTATUS", "3");
 		        q.agregarParametroValues("ID_USUARIO_MODIFICA ", "" + idUsuarioModifica +"");
 				q.agregarParametroValues("FEC_ACTUALIZACION ", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 		        q.addWhere("ID_ORDEN_SERVICIO =" +idOds);
