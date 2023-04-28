@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.imss.sivimss.arquetipo.service.DispoCapillasService;
 import com.imss.sivimss.arquetipo.util.DatosRequest;
+import com.imss.sivimss.arquetipo.util.LogUtil;
 import com.imss.sivimss.arquetipo.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.arquetipo.util.Response;
 
@@ -23,11 +24,20 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.AllArgsConstructor;
+import java.util.logging.Level;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/")
 public class DispoCapillasController {
+	
+	private static final String ALTA = "alta";
+	private static final String BAJA = "baja";
+	private static final String MODIFICACION = "modificacion";
+	private static final String CONSULTA = "consulta";
+	
+	@Autowired
+	private LogUtil logUtil;
 	
 	@Autowired
 	DispoCapillasService dispoCapillasService;
@@ -40,7 +50,7 @@ public class DispoCapillasController {
 	@TimeLimiter(name = "msflujo")
 	@PostMapping("/catalogo-velatorios")
 	public CompletableFuture<?> buscarVelatorios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
-	
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Resilencia", CONSULTA, authentication);
 		Response<?> response = dispoCapillasService.buscarVelatorios(request,authentication); 
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
