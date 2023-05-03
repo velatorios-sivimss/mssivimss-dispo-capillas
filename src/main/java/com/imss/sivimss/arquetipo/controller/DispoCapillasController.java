@@ -36,8 +36,8 @@ public class DispoCapillasController {
 	private static final String MODIFICACION = "modificacion";
 	private static final String CONSULTA = "consulta";
 	
-	@Autowired
-	private LogUtil logUtil;
+	//@Autowired
+	//private LogUtil logUtil;
 	
 	@Autowired
 	DispoCapillasService dispoCapillasService;
