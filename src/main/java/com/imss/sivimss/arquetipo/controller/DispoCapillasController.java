@@ -36,8 +36,8 @@ public class DispoCapillasController {
 	private static final String MODIFICACION = "modificacion";
 	private static final String CONSULTA = "consulta";
 	
-	//@Autowired
-	//private LogUtil logUtil;
+	@Autowired
+	private LogUtil logUtil;
 	
 	@Autowired
 	DispoCapillasService dispoCapillasService;
@@ -50,7 +50,7 @@ public class DispoCapillasController {
 	@TimeLimiter(name = "msflujo")
 	@PostMapping("/catalogo-velatorios")
 	public CompletableFuture<?> buscarVelatorios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
-		//logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Resilencia", CONSULTA, authentication);
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Resilencia", CONSULTA, authentication);
 		Response<?> response = dispoCapillasService.buscarVelatorios(request,authentication); 
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
