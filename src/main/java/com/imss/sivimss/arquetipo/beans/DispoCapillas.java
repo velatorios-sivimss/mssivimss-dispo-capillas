@@ -64,7 +64,7 @@ public class DispoCapillas {
 						+ " TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS hrEntrada, "
 						+ "DATE_FORMAT(SD.FEC_SALIDA, \"%d-%m-%Y\") AS fechaSalida, "
 						+ "TIME_FORMAT(SD.TIM_HORA_SALIDA, \"%H:%i\") AS hrSalida, "
-						+ "SC.NOM_CAPILLA AS nomCapilla, SV.NOM_VELATORIO AS nomVelatorio"
+						+ "SC.NOM_CAPILLA AS nomCapilla, SV.DES_VELATORIO AS nomVelatorio"
 						+ " FROM SVC_CAPILLA SC "
 						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
 						+ " JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
@@ -79,7 +79,7 @@ public class DispoCapillas {
 			public DatosRequest capillasDisponibles(DatosRequest request) {
 				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
 				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla,"
-						+ " SV.NOM_VELATORIO AS nomVelatorio, "
+						+ " SV.DES_VELATORIO AS nomVelatorio, "
 						+ " SC.IND_DISPONIBILIDAD AS disponibilidad "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
@@ -115,7 +115,7 @@ public class DispoCapillas {
 						+ "SC.IND_DISPONIBILIDAD AS disponibilidad, SD.ID_DISPONIBILIDAD AS idDisponibilidad, "
 						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada, "
 						+ "TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS horaEntrada,"
-						+ " SV.NOM_VELATORIO AS nomVelatorio "
+						+ " SV.DES_VELATORIO AS nomVelatorio "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ "JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
@@ -132,7 +132,7 @@ public class DispoCapillas {
 				DatosRequest request = new DatosRequest();
 				Map<String, Object> parametro = new HashMap<>();
 				final QueryHelper q = new QueryHelper("INSERT INTO SVT_DISPONIBILIDAD_CAPILLAS ");
-				q.agregarParametroValues(" ID_CAPILLA", "'" + this.idCapilla + "'");
+				q.agregarParametroValues(" ID_CAPILLA", "" + this.idCapilla + "");
 				q.agregarParametroValues("FEC_ENTRADA", "'" + this.fechaEntrada + "'");
 				q.agregarParametroValues("TIM_HORA_ENTRADA", "'" + this.horaEntrada + "'");
 				q.agregarParametroValues("ID_ORDEN_SERVICIO", "" + this.idOrdenServicio + "");
@@ -236,7 +236,7 @@ public class DispoCapillas {
 			}
 
 			public DatosRequest  catalogoVelatorio(DatosRequest request) {
-				String query = "SELECT ID_VELATORIO AS id, NOM_VELATORIO AS velatorio "
+				String query = "SELECT ID_VELATORIO AS id, DES_VELATORIO AS velatorio "
 						+ " FROM SVC_VELATORIO";
 				log.info(query);
 				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
