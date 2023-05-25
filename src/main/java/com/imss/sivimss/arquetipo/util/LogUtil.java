@@ -27,7 +27,7 @@ public class LogUtil {
         
             Gson json = new Gson();
             UsuarioDto usuarioDto = json.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-            File archivo = new File(rutaLog + new SimpleDateFormat("ddMMyyyy").format(new Date()) + ".log");
+            File archivo = new File(rutaLog +"mssivimss-dispo-capillas-"+ new SimpleDateFormat("ddMMyyyy").format(new Date()) + ".log");
            FileWriter escribirArchivo = new FileWriter(archivo, true);
            try {
                 escribirArchivo.write("" + formatoFechaLog + " --- [" + tipoLog + "] " + origen + " " + clasePath + " : " + mensaje + " , Usuario: " + usuarioDto.getCveUsuario() + " - " + tiempoEjecucion);
