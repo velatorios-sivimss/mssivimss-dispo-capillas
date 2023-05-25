@@ -1,5 +1,6 @@
 package com.imss.sivimss.arquetipo.beans;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,7 +13,6 @@ import javax.xml.bind.DatatypeConverter;
 
 import com.imss.sivimss.arquetipo.model.ReporteDto;
 import com.imss.sivimss.arquetipo.model.ReporteEntregaCapillaDto;
-import com.imss.sivimss.arquetipo.model.request.BuscarDispoCapillasRequest;
 import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
 import com.imss.sivimss.arquetipo.util.DatosRequest;
@@ -64,7 +64,7 @@ public class DispoCapillas {
 						+ " TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS hrEntrada, "
 						+ "DATE_FORMAT(SD.FEC_SALIDA, \"%d-%m-%Y\") AS fechaSalida, "
 						+ "TIME_FORMAT(SD.TIM_HORA_SALIDA, \"%H:%i\") AS hrSalida, "
-						+ "SC.NOM_CAPILLA AS nomCapilla, SV.NOM_VELATORIO AS nomVelatorio"
+						+ "SC.NOM_CAPILLA AS nomCapilla, SV.DES_VELATORIO AS nomVelatorio"
 						+ " FROM SVC_CAPILLA SC "
 						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
 						+ " JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
@@ -72,21 +72,22 @@ public class DispoCapillas {
 						+ " AND SC.ID_VELATORIO = '"+id+"' GROUP BY "
 						+ "SD.FEC_ENTRADA, SC.ID_CAPILLA ";
 				log.info(query);
-				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				request.getDatos().put(AppConstantes.QUERY, encoded);
 				return request;
 			}
 
 			public DatosRequest capillasDisponibles(DatosRequest request) {
 				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
 				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla,"
-						+ " SV.NOM_VELATORIO AS nomVelatorio, "
+						+ " SV.DES_VELATORIO AS nomVelatorio, "
 						+ " SC.IND_DISPONIBILIDAD AS disponibilidad "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ " WHERE SC.CVE_ESTATUS=1 AND SC.IND_DISPONIBILIDAD=1 AND SV.ID_VELATORIO="+ Integer.parseInt(palabra) +""
 								+ " GROUP BY SC.ID_CAPILLA";
-					
-				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				request.getDatos().put(AppConstantes.QUERY, encoded);
 				log.info(query);
 				return request;
 			}
@@ -105,7 +106,8 @@ public class DispoCapillas {
 								+ "WHERE OS.ID_ESTATUS_ORDEN_SERVICIO = 2 OR OS.ID_ESTATUS_ORDEN_SERVICIO = 3 AND OS.CVE_FOLIO = '"+ palabra +"' ";
 					log.info(query);
 				request.getDatos().remove(""+AppConstantes.PALABRA+"");
-				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				request.getDatos().put(AppConstantes.QUERY, encoded);
 				return request;
 			}
 
@@ -115,7 +117,7 @@ public class DispoCapillas {
 						+ "SC.IND_DISPONIBILIDAD AS disponibilidad, SD.ID_DISPONIBILIDAD AS idDisponibilidad, "
 						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada, "
 						+ "TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS horaEntrada,"
-						+ " SV.NOM_VELATORIO AS nomVelatorio "
+						+ " SV.DES_VELATORIO AS nomVelatorio "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ "JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
@@ -124,7 +126,8 @@ public class DispoCapillas {
 						+ "GROUP BY SD.ID_CAPILLA ORDER BY fechaEntrada DESC";
 					log.info(query);
 				request.getDatos().remove(""+AppConstantes.PALABRA+"");
-				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				request.getDatos().put(AppConstantes.QUERY, encoded);
 				return request;
 			}
 
@@ -132,7 +135,7 @@ public class DispoCapillas {
 				DatosRequest request = new DatosRequest();
 				Map<String, Object> parametro = new HashMap<>();
 				final QueryHelper q = new QueryHelper("INSERT INTO SVT_DISPONIBILIDAD_CAPILLAS ");
-				q.agregarParametroValues(" ID_CAPILLA", "'" + this.idCapilla + "'");
+				q.agregarParametroValues(" ID_CAPILLA", "" + this.idCapilla + "");
 				q.agregarParametroValues("FEC_ENTRADA", "'" + this.fechaEntrada + "'");
 				q.agregarParametroValues("TIM_HORA_ENTRADA", "'" + this.horaEntrada + "'");
 				q.agregarParametroValues("ID_ORDEN_SERVICIO", "" + this.idOrdenServicio + "");
@@ -141,7 +144,8 @@ public class DispoCapillas {
 				q.agregarParametroValues("FEC_ALTA", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				String query = q.obtenerQueryInsertar() + " $$ " + cambiarEstatusCapilla(this.idCapilla, idUsuarioAlta) +" $$ " + cambiarEstatusOds(this.idOrdenServicio, idUsuarioAlta);
 				log.info(query);
-				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				parametro.put(AppConstantes.QUERY, encoded);
 				 parametro.put("separador","$$");
 				request.setDatos(parametro);
 				return request;
@@ -156,7 +160,7 @@ public class DispoCapillas {
 				q.agregarParametroValues("FEC_ACTUALIZACION ", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 		        q.addWhere("ID_ORDEN_SERVICIO =" +idOds);
 		        String query = q.obtenerQueryActualizar();
-		        String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+		        String encoded = encodedQuery(query);
 		        parametro.put(AppConstantes.QUERY, encoded);
 		        request.setDatos(parametro);
 		        return query;
@@ -171,7 +175,7 @@ public class DispoCapillas {
 					q.agregarParametroValues(" FEC_ACTUALIZACION", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 			        q.addWhere("ID_CAPILLA =" +idCapilla);
 			        String query = q.obtenerQueryActualizar();
-			        String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+			        String encoded = encodedQuery(query);
 			        parametro.put(AppConstantes.QUERY, encoded);
 			        request.setDatos(parametro);
 			        return query;
@@ -189,10 +193,10 @@ public class DispoCapillas {
 				  q.addWhere("ID_DISPONIBILIDAD =" +this.idDisponibilidad);
 				String query = q.obtenerQueryActualizar()  + " $$ " + cambiarCapillaDisponible(this.idCapilla, idUsuarioModifica);
 				log.info("estoy en " +query);
-				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				parametro.put(AppConstantes.QUERY, encoded);
 				 parametro.put("separador","$$");
 				request.setDatos(parametro);
-
 				return request;
 			}
 
@@ -205,9 +209,9 @@ public class DispoCapillas {
 				q.agregarParametroValues("FEC_ACTUALIZACION", ""+AppConstantes.CURRENT_TIMESTAMP+"");
 				  q.addWhere("ID_CAPILLA =" +idCapilla);
 				String query = q.obtenerQueryActualizar();
-				parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				parametro.put(AppConstantes.QUERY, encoded);
 				request.setDatos(parametro);
-
 				return query;
 			}
 
@@ -229,17 +233,18 @@ public class DispoCapillas {
 						+ " JOIN SVC_CAPILLA CAP ON CAP.ID_CAPILLA = SDC.ID_CAPILLA "
 						+ " WHERE SDC.FEC_ENTRADA = '"+ fechaEntrada +"' "
 						+ " AND CAP.ID_CAPILLA = "+id+" ";
-			
-				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				request.getDatos().put(AppConstantes.QUERY, encoded);
 				log.info("estoy en:" +query);
 				return request;
 			}
 
 			public DatosRequest  catalogoVelatorio(DatosRequest request) {
-				String query = "SELECT ID_VELATORIO AS id, NOM_VELATORIO AS velatorio "
+				String query = "SELECT ID_VELATORIO AS id, DES_VELATORIO AS velatorio "
 						+ " FROM SVC_VELATORIO";
 				log.info(query);
-				request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+				String encoded = encodedQuery(query);
+				request.getDatos().put(AppConstantes.QUERY, encoded);
 				return request;
 			}
 
@@ -268,6 +273,9 @@ public class DispoCapillas {
 				envioDatos.put("folioOds", reporte.getFolioOds());
 				return envioDatos;
 			}
-
+			
+			private static String encodedQuery(String query) {
+		        return DatatypeConverter.printBase64Binary(query.getBytes(StandardCharsets.UTF_8));
+		    }
 			
 }
