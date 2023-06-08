@@ -40,12 +40,6 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	@Value("${endpoints.dominio-consulta}")
 	private String urlConsulta;
 	
-	@Value("${endpoints.dominio-consulta-paginado}")
-	private String urlPaginado;
-	
-	@Value("${endpoints.dominio-insertar-multiple}")
-	private String urlInsertarMultiple;
-	
 	@Value("${endpoints.dominio-reportes}")
 	private String urlReportes;
 
@@ -55,6 +49,9 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	Gson gson = new Gson();
 	
 	DispoCapillas dispoCapillas = new DispoCapillas();
+	
+	 private static final String PATH_CONSULTA="/consulta";
+	 private static final String PATH_INSERTAR_MULTIPLE="/insertarMultiple";
 	
 	private static final String SIN_INFORMACION="87";//No contamos con capillas disponibles por el momento. Intenta mas tarde. 
 	private static final String NO_EXISTE_ODS="85";//El numero de folio no existe. Verifica tu información.
@@ -70,26 +67,26 @@ public class DispoCapillasImpl implements DispoCapillasService{
         DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
         String fecha=anioMes.format(dateF);
         log.info("estoy en: " +fecha);
-		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getIdVelatorio(), fecha).getDatos(), urlConsulta,
+		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getIdVelatorio(), fecha).getDatos(), urlConsulta+PATH_CONSULTA,
 				authentication);
 	}
 
 	@Override
 	public Response<?> buscarCapillasDisponibles(DatosRequest request, Authentication authentication)
 			throws IOException {
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request).getDatos(), urlConsulta,
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request).getDatos(), urlConsulta+PATH_CONSULTA,
 				authentication), SIN_INFORMACION);
 	}
 
 	@Override
 	public Response<?> buscarOds(DatosRequest request, Authentication authentication) throws IOException {
-			return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.buscarOrdenServicio(request).getDatos(), urlConsulta,
+			return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.buscarOrdenServicio(request).getDatos(), urlConsulta+PATH_CONSULTA,
 					authentication), NO_EXISTE_ODS);
 	}
 
 	@Override
 	public Response<?> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException {
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasOcupadas(request).getDatos(), urlConsulta,
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasOcupadas(request).getDatos(), urlConsulta+PATH_CONSULTA,
 				authentication), "Sin información");
 	}
 
@@ -108,7 +105,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		if(dispoCapillasR.getIdCapilla()==null) {
 		throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta ");	
 		}
-			return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarEntrada().getDatos(), urlInsertarMultiple,
+			return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarEntrada().getDatos(), urlConsulta+PATH_INSERTAR_MULTIPLE,
 					authentication), AGREGADO_CORRECTAMENTE);
 	}
 	
@@ -125,7 +122,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		if(dispoCapillasR.getIdCapilla()==null || dispoCapillasR.getIdDisponibilidad()==null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
 		}
-		return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarSalida().getDatos(), urlInsertarMultiple,
+		return MensajeResponseUtil.mensajeResponse(providerRestTemplate.consumirServicio( dispoCapillas.insertarSalida().getDatos(),  urlConsulta+PATH_INSERTAR_MULTIPLE,
 						authentication), SALIDA_CORRECTA);
 	}
 	
@@ -135,7 +132,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		String datosJson = String.valueOf(request.getDatos().get("datos"));
 		BuscarDispoCapillasRequest buscar = gson.fromJson(datosJson, BuscarDispoCapillasRequest .class);
         dispoCapillas.setFechaEntrada(formatFechas(buscar.getFecha()));
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.detalleRegistro(request, buscar.getIdCapilla()).getDatos(), urlConsulta,
+		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.detalleRegistro(request, buscar.getIdCapilla()).getDatos(), urlConsulta+PATH_CONSULTA,
 				authentication),"No hay registros en el dia");
 	}	
 
