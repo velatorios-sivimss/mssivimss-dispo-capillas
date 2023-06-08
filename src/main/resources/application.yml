@@ -1,11 +1,13 @@
 server:
   port: 8080
   servlet:
-    contextPath: /mssivimss-dispo-capillas/v1
+    contextPath: /${spring.application.name}/v1
 spring:
+  application:
+    name: mssivimss-dispo-capillas
   mvc:
     pathmatch:
-      matching-strategy: ANT_PATH_MATCHER
+      matching-strategy: ANT_PATH_MATCHER 
       
 
       
@@ -27,12 +29,8 @@ logging:
  
 
 endpoints:
-   dominio-consulta: ${msit_DOMINIO_CONSULTA} 
-   dominio-consulta-paginado: ${msit_GENERICO_PAGINADO} 
-   dominio-crear: ${msit_GENERICO_CREAR} 
-   dominio-insertar-multiple: ${msit_GENERICO_INSERTAR_MULTIPLE} 
-   dominio-actualizar: ${msit_GENERICO_ACTUALIZAR} 
-   dominio-reportes: ${msit_REPORTES} 
+   dominio-consulta: ${msit_CATALOGOS} 
+   dominio-reportes: ${msit_REPORTES_GENERALES} 
                                          
 
 jwt:
