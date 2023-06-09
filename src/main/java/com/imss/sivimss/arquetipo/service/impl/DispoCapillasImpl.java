@@ -150,7 +150,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 
 	@Override
 	public Response<?> buscarVelatorios(DatosRequest request, Authentication authentication) throws IOException {
-		return providerRestTemplate.consumirServicio(dispoCapillas.catalogoVelatorio(request).getDatos(), urlConsulta,
+		return providerRestTemplate.consumirServicio(dispoCapillas.catalogoVelatorio(request).getDatos(), urlConsulta+PATH_CONSULTA,
 				authentication);
 	}
 
