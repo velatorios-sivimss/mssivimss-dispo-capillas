@@ -103,7 +103,7 @@ public class DispoCapillas {
 								+ "FROM SVC_ORDEN_SERVICIO OS  "
 								+ "JOIN SVC_FINADO SF ON OS.ID_ORDEN_SERVICIO = SF.ID_ORDEN_SERVICIO  "
 								+ "JOIN SVC_PERSONA PS ON PS.ID_PERSONA = SF.ID_PERSONA "
-								+ "WHERE OS.ID_ESTATUS_ORDEN_SERVICIO = 2 OR OS.ID_ESTATUS_ORDEN_SERVICIO = 3 AND OS.CVE_FOLIO = '"+ palabra +"' ";
+								+ "WHERE OS.CVE_FOLIO = '"+ palabra +"' AND (OS.ID_ESTATUS_ORDEN_SERVICIO = 2 OR OS.ID_ESTATUS_ORDEN_SERVICIO = 3)";
 					log.info(query);
 				request.getDatos().remove(""+AppConstantes.PALABRA+"");
 				String encoded = encodedQuery(query);
