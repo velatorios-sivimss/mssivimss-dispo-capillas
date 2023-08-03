@@ -64,7 +64,8 @@ public class DispoCapillas {
 						+ " TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS hrEntrada, "
 						+ "DATE_FORMAT(SD.FEC_SALIDA, \"%d-%m-%Y\") AS fechaSalida, "
 						+ "TIME_FORMAT(SD.TIM_HORA_SALIDA, \"%H:%i\") AS hrSalida, "
-						+ "SC.NOM_CAPILLA AS nomCapilla, SV.DES_VELATORIO AS nomVelatorio"
+						+ "SC.REF_CAPILLA AS nomCapilla, "
+						+ "SV.REF_VELATORIO AS nomVelatorio"
 						+ " FROM SVC_CAPILLA SC "
 						+ " JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
 						+ " JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
@@ -79,8 +80,9 @@ public class DispoCapillas {
 
 			public DatosRequest capillasDisponibles(DatosRequest request) {
 				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
-				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla,"
-						+ " SV.DES_VELATORIO AS nomVelatorio, "
+				String query = "SELECT SC.ID_CAPILLA AS idCapilla, "
+						+ "SC.REF_CAPILLA AS nomCapilla,"
+						+ " SV.REF_VELATORIO AS nomVelatorio, "
 						+ " SC.IND_DISPONIBILIDAD AS disponibilidad "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
@@ -113,11 +115,12 @@ public class DispoCapillas {
 
 			public DatosRequest capillasOcupadas(DatosRequest request) {
 				String palabra = request.getDatos().get(""+AppConstantes.PALABRA+"").toString();
-				String query = "SELECT SC.ID_CAPILLA AS idCapilla, SC.NOM_CAPILLA AS nomCapilla, "
+				String query = "SELECT SC.ID_CAPILLA AS idCapilla, "
+						+ "SC.REF_CAPILLA AS nomCapilla, "
 						+ "SC.IND_DISPONIBILIDAD AS disponibilidad, SD.ID_DISPONIBILIDAD AS idDisponibilidad, "
 						+ "DATE_FORMAT(SD.FEC_ENTRADA, \"%d-%m-%Y\") AS fechaEntrada, "
 						+ "TIME_FORMAT(SD.TIM_HORA_ENTRADA, \"%H:%i\") AS horaEntrada,"
-						+ " SV.DES_VELATORIO AS nomVelatorio "
+						+ " SV.REF_VELATORIO AS nomVelatorio "
 						+ "FROM SVC_CAPILLA SC "
 						+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SC.ID_VELATORIO "
 						+ "JOIN SVT_DISPONIBILIDAD_CAPILLAS SD ON SD.ID_CAPILLA = SC.ID_CAPILLA "
@@ -223,7 +226,7 @@ public class DispoCapillas {
 						+ " FROM SVC_FINADO SF "
 						+ " JOIN SVC_ORDEN_SERVICIO ON OS.ID_ORDEN_SERVICIO = SF.ID_ORDEN_SERVICIO "
 						+ "JOIN SVC_PERSONA SPN ON SF.ID_PERSONA = SPN.ID_PERSONA LIMIT 1) AS finado, "
-						+ " CAP.NOM_CAPILLA AS nomCapilla, "
+						+ " CAP.REF_CAPILLA AS nomCapilla, "
 						+ "TIME_FORMAT(SDC.TIM_HORA_ENTRADA, \"%H:%i\") AS registroEntrada, "
 						+ "TIME_FORMAT(SDC.TIM_HORA_SALIDA, \"%H:%i\") AS registroSalida "
 						+ "FROM SVC_ORDEN_SERVICIO OS "
@@ -240,7 +243,7 @@ public class DispoCapillas {
 			}
 
 			public DatosRequest  catalogoVelatorio(DatosRequest request) {
-				String query = "SELECT ID_VELATORIO AS id, DES_VELATORIO AS velatorio "
+				String query = "SELECT ID_VELATORIO AS id, REF_VELATORIO AS velatorio "
 						+ " FROM SVC_VELATORIO";
 				log.info(query);
 				String encoded = encodedQuery(query);
