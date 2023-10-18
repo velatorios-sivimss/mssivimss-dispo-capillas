@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,9 +27,11 @@ import com.imss.sivimss.arquetipo.model.request.DispoCapillasRequest;
 import com.imss.sivimss.arquetipo.service.DispoCapillasService;
 import com.imss.sivimss.arquetipo.util.AppConstantes;
 import com.imss.sivimss.arquetipo.util.DatosRequest;
+import com.imss.sivimss.arquetipo.util.LogUtil;
 import com.imss.sivimss.arquetipo.util.MensajeResponseUtil;
 import com.imss.sivimss.arquetipo.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.arquetipo.util.Response;
+
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +53,16 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	
 	DispoCapillas dispoCapillas = new DispoCapillas();
 	
+	@Autowired
+	private LogUtil logUtil;
+	
+	private static final String IMPRIMIR = "IMPRIMIR";
+	private static final String ALTA = "alta";
+	private static final String MODIFICACION = "modificacion";
+	private static final String CONSULTA = "consulta";
+	private static final String EXITO = "EXITO";
+	private static final String ERROR_DESCARGA= "64";
+	
 	 private static final String PATH_CONSULTA="/consulta";
 	 private static final String PATH_INSERTAR_MULTIPLE="/insertarMultiple";
 	
@@ -58,7 +71,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	private static final String AGREGADO_CORRECTAMENTE="84";//Has registrado la entrada del servicio correctamente
 	private static final String SALIDA_CORRECTA="83";//Has registrado la salida del servicio correctamente
 	@Override
-	public Response<?> buscarRegistrosPorMes(DatosRequest request, Authentication authentication)
+	public Response<Object> buscarRegistrosPorMes(DatosRequest request, Authentication authentication)
 			throws IOException, ParseException {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		BuscarRegistroMensualRequest buscarMensual = gson.fromJson(datosJson, BuscarRegistroMensualRequest .class);
@@ -66,32 +79,39 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		Date dateF = new SimpleDateFormat("MM-yyyy").parse(fechaCompleta);
         DateFormat anioMes = new SimpleDateFormat("yyyy-MM", new Locale("es", "MX"));
         String fecha=anioMes.format(dateF);
-        log.info("estoy en: " +fecha);
-		return providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getIdVelatorio(), fecha).getDatos(), urlConsulta+PATH_CONSULTA,
+        Response<Object> response = providerRestTemplate.consumirServicio(dispoCapillas.registrosPorMes(request, buscarMensual.getIdVelatorio(), fecha).getDatos(), urlConsulta+PATH_CONSULTA,
 				authentication);
+        logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DETALLE OK", CONSULTA);
+        return MensajeResponseUtil.mensajeConsultaResponse(response, EXITO);
 	}
 
 	@Override
-	public Response<?> buscarCapillasDisponibles(DatosRequest request, Authentication authentication)
+	public Response<Object> buscarCapillasDisponibles(DatosRequest request, Authentication authentication)
 			throws IOException {
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request).getDatos(), urlConsulta+PATH_CONSULTA,
-				authentication), SIN_INFORMACION);
+		Response<Object> response = providerRestTemplate.consumirServicio(dispoCapillas.capillasDisponibles(request).getDatos(), urlConsulta+PATH_CONSULTA,
+				authentication);
+		 logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"CONSULTA CAPILLAS DISPONIBLES OK", CONSULTA);
+				return MensajeResponseUtil.mensajeConsultaResponse(response, SIN_INFORMACION);
 	}
 
 	@Override
-	public Response<?> buscarOds(DatosRequest request, Authentication authentication) throws IOException {
-			return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.buscarOrdenServicio(request).getDatos(), urlConsulta+PATH_CONSULTA,
-					authentication), NO_EXISTE_ODS);
+	public Response<Object> buscarOds(DatosRequest request, Authentication authentication) throws IOException {
+		Response<Object> response = providerRestTemplate.consumirServicio(dispoCapillas.buscarOrdenServicio(request).getDatos(), urlConsulta+PATH_CONSULTA,
+					authentication);
+		 logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"CONSULTA ODS OK", CONSULTA);
+		return MensajeResponseUtil.mensajeConsultaResponse(response, NO_EXISTE_ODS);
 	}
 
 	@Override
-	public Response<?> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException {
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.capillasOcupadas(request).getDatos(), urlConsulta+PATH_CONSULTA,
-				authentication), "Sin información");
+	public Response<Object> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException {
+		Response<Object> response =providerRestTemplate.consumirServicio(dispoCapillas.capillasOcupadas(request).getDatos(), urlConsulta+PATH_CONSULTA,
+				authentication);
+		 logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"CONSULTA CAPILLAS OCUPADAS OK", CONSULTA);
+		return MensajeResponseUtil.mensajeConsultaResponse(response, "Sin información");
 	}
 
 	@Override
-	public Response<?> registrarEntrada(DatosRequest request, Authentication authentication) throws IOException, ParseException {
+	public Response<Object> registrarEntrada(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		DispoCapillasRequest dispoCapillasR = gson.fromJson(datosJson, DispoCapillasRequest.class);	
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
@@ -99,9 +119,6 @@ public class DispoCapillasImpl implements DispoCapillasService{
 		dispoCapillas.setIdUsuarioAlta(usuarioDto.getIdUsuario());
 		dispoCapillas.setFechaEntrada(formatFechas(dispoCapillasR.getFechaEntrada()));
 		dispoCapillas.setHoraEntrada(formatHoras(dispoCapillasR.getHoraEntrada()));
-		log.info("delegacion: " +usuarioDto.getIdDelegacion());
-		log.info("vel: " +usuarioDto.getIdVelatorio());
-		
 		if(dispoCapillasR.getIdCapilla()==null) {
 		throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta ");	
 		}
@@ -110,7 +127,7 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	}
 	
 	@Override
-	public Response<?> registrarSalida(DatosRequest request, Authentication authentication)
+	public Response<Object> registrarSalida(DatosRequest request, Authentication authentication)
 			throws IOException, ParseException {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		DispoCapillasRequest dispoCapillasR = gson.fromJson(datosJson, DispoCapillasRequest.class);	
@@ -127,13 +144,15 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	}
 	
 	@Override
-	public Response<?> detallePorDia(DatosRequest request, Authentication authentication)
+	public Response<Object> detallePorDia(DatosRequest request, Authentication authentication)
 			throws IOException, ParseException {
 		String datosJson = String.valueOf(request.getDatos().get("datos"));
 		BuscarDispoCapillasRequest buscar = gson.fromJson(datosJson, BuscarDispoCapillasRequest .class);
         dispoCapillas.setFechaEntrada(formatFechas(buscar.getFecha()));
-		return MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(dispoCapillas.detalleRegistro(request, buscar.getIdCapilla()).getDatos(), urlConsulta+PATH_CONSULTA,
-				authentication),"No hay registros en el dia");
+        Response<Object> response= providerRestTemplate.consumirServicio(dispoCapillas.detalleRegistro(request, buscar.getIdCapilla()).getDatos(), urlConsulta+PATH_CONSULTA,
+				authentication);
+        logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DETALLE OK", CONSULTA);
+        return MensajeResponseUtil.mensajeConsultaResponse(response,"No hay registros en el dia");
 	}	
 
 	private String formatHoras(String hora) throws ParseException {
@@ -149,13 +168,13 @@ public class DispoCapillasImpl implements DispoCapillasService{
 	}
 
 	@Override
-	public Response<?> buscarVelatorios(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<Object> buscarVelatorios(DatosRequest request, Authentication authentication) throws IOException {
 		return providerRestTemplate.consumirServicio(dispoCapillas.catalogoVelatorio(request).getDatos(), urlConsulta+PATH_CONSULTA,
 				authentication);
 	}
 
 	@Override
-	public Response<?> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException, ParseException {
+	public Response<Object> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 	
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		ReporteDto reporteDto= gson.fromJson(datosJson, ReporteDto.class);
@@ -163,19 +182,23 @@ public class DispoCapillasImpl implements DispoCapillasService{
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Falta infomación");
 		}
 		Map<String, Object> envioDatos = new DispoCapillas().generarReporte(reporteDto);
-		return providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
+		Response <Object> response = providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
 				authentication);
+		 logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"GENERAR DOCUMENTO OK", IMPRIMIR);
+		return MensajeResponseUtil.mensajeConsultaResponse(response, ERROR_DESCARGA);
 	}
 
 	@Override
-	public Response<?> descargarEntregaCapilla(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<Object> descargarEntregaCapilla(DatosRequest request, Authentication authentication) throws IOException {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		ReporteEntregaCapillaDto reporte= gson.fromJson(datosJson, ReporteEntregaCapillaDto.class);
 		if(reporte.getFolioOds()==null || reporte.getIdCapilla()==null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Falta infomación");
 		}
 		Map<String, Object> envioDatos = new DispoCapillas().reporteEntregaCapillas(reporte);
-		return providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
+		Response <Object> response = providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes ,
 				authentication);
+		 logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"GENERAR PLANTILLA OK", IMPRIMIR);
+		return MensajeResponseUtil.mensajeConsultaResponse(response, ERROR_DESCARGA);
 	}
 }

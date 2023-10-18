@@ -48,10 +48,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/catalogo-velatorios")
-	public CompletableFuture<?> buscarVelatorios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Catalogo Velatorios", CONSULTA, authentication);
-		Response<?> response = dispoCapillasService.buscarVelatorios(request,authentication); 
+	@PostMapping("catalogo-velatorios")
+	public CompletableFuture<Object> buscarVelatorios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Catalogo Velatorios", CONSULTA);
+		Response<Object> response = dispoCapillasService.buscarVelatorios(request,authentication); 
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -59,10 +59,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/registro-mensual")
-	public CompletableFuture<?> buscarRegistros(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Registro mensual de e/s por velatorio", CONSULTA, authentication);
-		Response<?> response =  dispoCapillasService.buscarRegistrosPorMes(request,authentication); 
+	@PostMapping("registro-mensual")
+	public CompletableFuture<Object> buscarRegistros(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Registro mensual de e/s por velatorio", CONSULTA);
+		Response<Object> response =  dispoCapillasService.buscarRegistrosPorMes(request,authentication); 
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -70,10 +70,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/disponibles")
-	public CompletableFuture<?> buscarCapillas(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Buscar capillas disponibles", CONSULTA, authentication);
-		Response<?> response =  dispoCapillasService.buscarCapillasDisponibles(request,authentication);
+	@PostMapping("disponibles")
+	public CompletableFuture<Object> buscarCapillas(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Buscar capillas disponibles", CONSULTA);
+		Response<Object> response =  dispoCapillasService.buscarCapillasDisponibles(request,authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -81,10 +81,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/buscar-ods")
-	public CompletableFuture<?> buscarOrdenServicio(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Buscar orden de servicio", CONSULTA, authentication);
-		Response<?> response = dispoCapillasService.buscarOds(request,authentication);
+	@PostMapping("buscar-ods")
+	public CompletableFuture<Object> buscarOrdenServicio(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Buscar orden de servicio", CONSULTA);
+		Response<Object> response = dispoCapillasService.buscarOds(request,authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -92,10 +92,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/ocupadas")
-	public CompletableFuture<?> buscarCapillasOcupadas(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Buscar capillas ocupadas", CONSULTA, authentication);
-		Response<?> response = dispoCapillasService.buscarCapillasOcupadas(request,authentication); 
+	@PostMapping("ocupadas")
+	public CompletableFuture<Object> buscarCapillasOcupadas(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Buscar capillas ocupadas", CONSULTA);
+		Response<Object> response = dispoCapillasService.buscarCapillasOcupadas(request,authentication); 
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -103,10 +103,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/registrar-entrada")
-	public CompletableFuture<?> registrarEntradaCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Registrar entrada a capilla", ALTA, authentication);
-		Response<?> response = dispoCapillasService.registrarEntrada(request,authentication); 
+	@PostMapping("registrar-entrada")
+	public CompletableFuture<Object> registrarEntradaCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Registrar entrada a capilla", ALTA);
+		Response<Object> response = dispoCapillasService.registrarEntrada(request,authentication); 
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -114,10 +114,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/registrar-salida")
-	public CompletableFuture<?> registrarSalidaCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Registrar salida a capilla", ALTA, authentication);
-		Response<?> response = dispoCapillasService.registrarSalida(request,authentication);
+	@PostMapping("registrar-salida")
+	public CompletableFuture<Object> registrarSalidaCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Registrar salida a capilla", MODIFICACION);
+		Response<Object> response = dispoCapillasService.registrarSalida(request,authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -125,10 +125,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/detalle-por-dia")
-	public CompletableFuture<?> detalleRegistroCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Detalle de registros en e/s de capilla", CONSULTA, authentication);
-		Response<?> response = dispoCapillasService.detallePorDia(request,authentication);
+	@PostMapping("detalle-por-dia")
+	public CompletableFuture<Object> detalleRegistroCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Detalle de registros en e/s de capilla", CONSULTA);
+		Response<Object> response = dispoCapillasService.detallePorDia(request,authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -136,10 +136,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/descargar-reporte")
-	public CompletableFuture<?> descargarReporte(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Imprimir historico mensual de e/s por velatorio", IMPRIMIR, authentication);
-		Response<?> response = dispoCapillasService.descargarDocumento(request,authentication);
+	@PostMapping("descargar-reporte")
+	public CompletableFuture<Object> descargarReporte(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Imprimir historico mensual de e/s por velatorio", IMPRIMIR);
+		Response<Object> response = dispoCapillasService.descargarDocumento(request,authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -147,10 +147,10 @@ public class DispoCapillasController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/descargar-entrega-capilla")
-	public CompletableFuture<?> descargarReporteEntregaCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
-		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Imprimir plantilla entrega de capilla", IMPRIMIR, authentication);
-		Response<?> response = dispoCapillasService.descargarEntregaCapilla(request,authentication);
+	@PostMapping("descargar-entrega-capilla")
+	public CompletableFuture<Object> descargarReporteEntregaCapilla(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"Imprimir plantilla entrega de capilla", IMPRIMIR);
+		Response<Object> response = dispoCapillasService.descargarEntregaCapilla(request,authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}

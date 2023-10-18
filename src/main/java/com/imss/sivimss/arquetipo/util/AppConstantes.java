@@ -28,9 +28,11 @@ public class AppConstantes {
 	public static final String CIRCUITBREAKER = "El servicio no responde, no permite más llamadas.";
 	
 	public static final String PALABRA = "palabra";
-	public static final String INDESTATUS  = "IND_ESTATUS";
-	public static final String CURRENT_TIMESTAMP  = "CURRENT_TIMESTAMP()";
+	public static final String IND_ESTATUS  = "IND_ESTATUS";
+	public static final String CURRENT_TIMESTAMP  = "CURRENT_DATE()";
 	public static final String CVE_ESTATUS = "IND_ACTIVO";
+	public static final String ID_USUARIO_MODIFICA = "ID_USUARIO_MODIFICA";
+	public static final String FEC_ACTUALIZACION = "FEC_ACTUALIZACION";
 	
 	private AppConstantes() {
 	    throw new IllegalStateException("AppConstantes class");

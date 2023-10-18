@@ -10,24 +10,24 @@ import com.imss.sivimss.arquetipo.util.Response;
 
 public interface DispoCapillasService {
 
-	Response<?> buscarRegistrosPorMes(DatosRequest request, Authentication authentication) throws IOException, ParseException;
+	Response<Object> buscarRegistrosPorMes(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 
-	Response<?> buscarCapillasDisponibles(DatosRequest request, Authentication authentication) throws IOException;
+	Response<Object> buscarCapillasDisponibles(DatosRequest request, Authentication authentication) throws IOException;
 
-	Response<?> buscarOds(DatosRequest request, Authentication authentication)  throws IOException;
+	Response<Object> buscarOds(DatosRequest request, Authentication authentication)  throws IOException;
 
-	Response<?> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException;
+	Response<Object> buscarCapillasOcupadas(DatosRequest request, Authentication authentication) throws IOException;
 
-	Response<?> registrarEntrada(DatosRequest request, Authentication authentication) throws IOException, ParseException;
+	Response<Object> registrarEntrada(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 
-	Response<?> registrarSalida(DatosRequest request, Authentication authentication)throws IOException, ParseException;
+	Response<Object> registrarSalida(DatosRequest request, Authentication authentication)throws IOException, ParseException;
 
-	Response<?> detallePorDia(DatosRequest request, Authentication authentication) throws IOException, ParseException;
+	Response<Object> detallePorDia(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 
-	Response<?> buscarVelatorios(DatosRequest request, Authentication authentication) throws IOException;
+	Response<Object> buscarVelatorios(DatosRequest request, Authentication authentication) throws IOException;
 
-	Response<?> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException, ParseException;
+	Response<Object> descargarDocumento(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 
-	Response<?> descargarEntregaCapilla(DatosRequest request, Authentication authentication) throws IOException;
+	Response<Object> descargarEntregaCapilla(DatosRequest request, Authentication authentication) throws IOException;
 
 }
