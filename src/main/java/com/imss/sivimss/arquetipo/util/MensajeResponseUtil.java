@@ -3,6 +3,7 @@ package com.imss.sivimss.arquetipo.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class MensajeResponseUtil {
 	
 	private static final Logger log = LoggerFactory.getLogger(MensajeResponseUtil.class);
@@ -12,7 +13,7 @@ public class MensajeResponseUtil {
 	}
 
 	
-	public  static Response<?>mensajeResponse(Response<?> respuestaGenerado, String numeroMensaje) {
+	public  static Response<Object>mensajeResponse(Response<Object> respuestaGenerado, String numeroMensaje) {
 		Integer codigo = respuestaGenerado.getCodigo();
 		if (codigo == 200) {
 			respuestaGenerado.setMensaje(numeroMensaje);
@@ -23,9 +24,20 @@ public class MensajeResponseUtil {
 		return respuestaGenerado;
 	}
 	
-	public  static Response<?>mensajeConsultaResponse(Response<?> respuestaGenerado, String numeroMensaje) {
+	public  static Response<Object>mensajeConsultaResponse(Response<Object> respuestaGenerado, String numeroMensaje) {
 		Integer codigo = respuestaGenerado.getCodigo();
 		if (codigo == 200 &&  (!respuestaGenerado.getDatos().toString().contains("id"))){
+			respuestaGenerado.setMensaje(numeroMensaje);
+		}
+		return respuestaGenerado;
+	}
+	
+	public  static Response<Object>mensajeConsultaResponseObject(Response<Object> respuestaGenerado, String numeroMensaje) {
+		Integer codigo = respuestaGenerado.getCodigo();
+		if (codigo == 200 &&  !(respuestaGenerado.getDatos().toString().contains("[]")) ){
+			respuestaGenerado.setMensaje("EXITO");
+		}else if (codigo == 400 || codigo == 404 || codigo == 500 ) {
+			log.error("Error.. {}", respuestaGenerado.getMensaje());
 			respuestaGenerado.setMensaje(numeroMensaje);
 		}
 		return respuestaGenerado;
